@@ -1,0 +1,23 @@
+{
+    "name": "famima65536/my-chunk-land",
+    "description": "PocketMine-MP land protection and buy pluigin for major Economy plugins.",
+    "type": "project",
+    "require-dev": {
+        "phpstan/phpstan": "^1.2",
+        "phpunit/phpunit": "^9.5",
+        "pocketmine/pocketmine-mp": "^3.25"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "famima65536",
+            "email": "famima65536@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "": "src"
+        }
+    }
+}
