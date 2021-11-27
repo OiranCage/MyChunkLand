@@ -2,6 +2,8 @@
 
 namespace famima65536\mychunkland\system\model;
 
+use pocketmine\level\Level;
+
 /** This is value-type class */
 class ChunkCoordinate {
 	public function __construct(
@@ -38,5 +40,9 @@ class ChunkCoordinate {
 			$this->z === $other->z &&
 			$this->worldName === $other->worldName
 		);
+	}
+
+	public function hash(): int{
+		return Level::chunkHash($this->x, $this->z);
 	}
 }
