@@ -3,7 +3,7 @@
 namespace famima65536\mychunkland\system\model;
 
 /**
- * Mutable Entity-type class
+ * Immutable Entity-type class
  */
 class Section {
 	public function __construct(
@@ -39,16 +39,25 @@ class Section {
 	/**
 	 * @param ShareGroup $shareGroup
 	 */
-	public function setShareGroup(ShareGroup $shareGroup): void{
-		$this->shareGroup = $shareGroup;
+	public function shareGroupUpdated(ShareGroup $shareGroup): self{
+		return new self($this->coordinate, $this->ownerId, $shareGroup, $this->groupPermission, $this->otherPermission);
 	}
 
 	public function getGroupPermission(): AccessPermission{
 		return $this->groupPermission;
 	}
 
+	public function groupPermissionUpdated(AccessPermission $permission): self{
+		return new self($this->coordinate, $this->ownerId, $this->shareGroup, $permission, $this->otherPermission);
+
+	}
+
 	public function getOtherPermission(): AccessPermission{
 		return $this->otherPermission;
+	}
+
+	public function otherPermissionUpdated(AccessPermission $permission): self{
+		return new self($this->coordinate, $this->ownerId, $this->shareGroup, $this->groupPermission, $permission);
 	}
 
 	public function getPermissionFor(UserId $userId): AccessPermission{
