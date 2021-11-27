@@ -2,15 +2,18 @@
 
 namespace famima65536\mychunkland\system\model;
 
+/**
+ * Immutable Entity-type class
+ */
 class User {
 	/**
 	 * @param UserId $id
-	 * @param ChunkCoordinate[] $ownedSectionIds
+	 * @param ChunkCoordinate[] $owningSectionIds
 	 * @param ChunkCoordinate[] $sharedSectionIds
 	 */
 	public function __construct(
 		private UserId $id,
-		private array $ownedSectionIds,
+		private array $owningSectionIds,
 		private array $sharedSectionIds
 	){
 	}
@@ -25,16 +28,10 @@ class User {
 	/**
 	 * @return ChunkCoordinate[]
 	 */
-	public function getOwnedSectionIds(): array{
-		return $this->ownedSectionIds;
+	public function getOwningSectionIds(): array{
+		return $this->owningSectionIds;
 	}
 
-	/**
-	 * @param ChunkCoordinate[] $ownedSectionIds
-	 */
-	public function setOwnedSectionIds(array $ownedSectionIds): void{
-		$this->ownedSectionIds = $ownedSectionIds;
-	}
 
 	/**
 	 * @return ChunkCoordinate[]
@@ -43,10 +40,8 @@ class User {
 		return $this->sharedSectionIds;
 	}
 
-	/**
-	 * @param ChunkCoordinate[] $sharedSectionIds
-	 */
-	public function setSharedSectionIds(array $sharedSectionIds): void{
-		$this->sharedSectionIds = $sharedSectionIds;
+	public function equals(User $user): bool{
+		return $user->id->equals($this->id);
 	}
+
 }
