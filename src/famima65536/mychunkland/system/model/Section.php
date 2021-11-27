@@ -43,6 +43,14 @@ class Section {
 		$this->shareGroup = $shareGroup;
 	}
 
+	public function getGroupPermission(): AccessPermission{
+		return $this->groupPermission;
+	}
+
+	public function getOtherPermission(): AccessPermission{
+		return $this->otherPermission;
+	}
+
 	public function getPermissionFor(UserId $userId): AccessPermission{
 		if($userId === $this->ownerId){
 			return new AccessPermission(true, true, true); // Dummy Permission
