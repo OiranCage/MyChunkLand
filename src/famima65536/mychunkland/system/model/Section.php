@@ -2,12 +2,16 @@
 
 namespace famima65536\mychunkland\system\model;
 
+/**
+ * Mutable Entity-type class
+ */
 class Section {
 	public function __construct(
 		private ChunkCoordinate $coordinate,
 		private UserId $ownerId,
 		private ShareGroup $shareGroup,
-		private AccessPermission $permission
+		private AccessPermission $groupPermission,
+		private AccessPermission $otherPermission
 	){
 	}
 
@@ -39,15 +43,15 @@ class Section {
 		$this->shareGroup = $shareGroup;
 	}
 
-	/**
-	 * @return AccessPermission
-	 */
-	public function getPermission(): AccessPermission{
-		return $this->permission;
-	}
+	public function getPermissionFor(UserId $userId): AccessPermission{
+		if($userId === $this->ownerId){
+			return new AccessPermission(true, true, true); // Dummy Permission
+		}
 
-	public function isEditable(User $user): bool{
-		// TODO: suitable logic to judge;
-		return false;
+		if($this->shareGroup->contains($userId)){
+			return $this->groupPermission;
+		}
+
+		return $this->otherPermission;
 	}
 }
