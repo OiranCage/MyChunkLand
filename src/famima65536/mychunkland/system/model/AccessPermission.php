@@ -41,4 +41,24 @@ class AccessPermission {
 			!$this->executable
 		);
 	}
+
+
+	public static function fromBinary(int $binary): AccessPermission{
+		$readable   = ($binary >> 2) & 1;
+		$writeable  = ($binary >> 1) & 1;
+		$executable = ($binary >> 0) & 1;
+		return new AccessPermission($readable, $writeable, $executable);
+	}
+
+	/**
+	 * return binary expression of access permission
+	 * @return int
+	 */
+	public function toBinary(): int{
+		$binary = 0;
+		$binary |= ($this->readable ? 4 /** = 1 << 2 */ : 0);
+		$binary |= ($this->writable ? 2 /** = 1 << 1 */ : 0);
+		$binary |= ($this->executable ? 1 /** = 1 << 0 */ : 0);
+		return $binary;
+	}
 }
