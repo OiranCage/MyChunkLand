@@ -3,6 +3,11 @@
 namespace famima65536\mychunkland\system\model;
 
 class User {
+	/**
+	 * @param UserId $id
+	 * @param ChunkCoordinate[] $ownedSectionIds
+	 * @param ChunkCoordinate[] $sharedSectionIds
+	 */
 	public function __construct(
 		private UserId $id,
 		private array $ownedSectionIds,
@@ -18,28 +23,28 @@ class User {
 	}
 
 	/**
-	 * @return array
+	 * @return ChunkCoordinate[]
 	 */
 	public function getOwnedSectionIds(): array{
 		return $this->ownedSectionIds;
 	}
 
 	/**
-	 * @param array $ownedSectionIds
+	 * @param ChunkCoordinate[] $ownedSectionIds
 	 */
 	public function setOwnedSectionIds(array $ownedSectionIds): void{
 		$this->ownedSectionIds = $ownedSectionIds;
 	}
 
 	/**
-	 * @return array
+	 * @return ChunkCoordinate[]
 	 */
 	public function getSharedSectionIds(): array{
 		return $this->sharedSectionIds;
 	}
 
 	/**
-	 * @param array $sharedSectionIds
+	 * @param ChunkCoordinate[] $sharedSectionIds
 	 */
 	public function setSharedSectionIds(array $sharedSectionIds): void{
 		$this->sharedSectionIds = $sharedSectionIds;
