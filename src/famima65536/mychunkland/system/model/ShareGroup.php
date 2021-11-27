@@ -14,6 +14,13 @@ class ShareGroup {
 	public function __construct(private array $userIds){
 	}
 
+	/**
+	 * @return UserId[]
+	 */
+	public function getUserIds(): array{
+		return $this->userIds;
+	}
+
 	public function contains(UserId $userId): bool{
 		foreach($this->userIds as $sharedUserId){
 			if($userId->equals($sharedUserId)){
