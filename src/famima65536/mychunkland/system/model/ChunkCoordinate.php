@@ -31,4 +31,12 @@ class ChunkCoordinate {
 	public function getWorldName(): string{
 		return $this->worldName;
 	}
+
+	public function equals(ChunkCoordinate $other): bool{
+		return (
+			$this->x === $other->x &&
+			$this->z === $other->z &&
+			$this->worldName === $other->worldName
+		);
+	}
 }
