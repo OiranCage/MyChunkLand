@@ -2,14 +2,19 @@
 
 namespace famima65536\mychunkland\system\model;
 
+use InvalidArgumentException;
+
 /**
  * Immutable Variety
  */
-class UserId {
+class UserId{
 	public function __construct(
 		private string $prefix,
 		private string $name
 	){
+		if(mb_strlen($this->prefix) > 50){
+			throw new InvalidArgumentException("length of prefix should be less than 50.");
+		}
 	}
 
 	/**
