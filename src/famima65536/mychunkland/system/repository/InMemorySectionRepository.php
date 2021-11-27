@@ -28,7 +28,7 @@ class InMemorySectionRepository implements ISectionRepository {
 			return null;
 		}
 
-		return clone $this->sections[$coordinate->getWorldName()][Level::chunkHash($coordinate->getX(), $coordinate->getZ())] ?? null;
+		return clone $this->sections[$coordinate->getWorldName()][$coordinate->hash()] ?? null;
 	}
 
 	/**
