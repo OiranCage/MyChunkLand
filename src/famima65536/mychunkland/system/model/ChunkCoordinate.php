@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace famima65536\mychunkland\system\model;
 
@@ -6,7 +6,8 @@ namespace famima65536\mychunkland\system\model;
 class ChunkCoordinate {
 	public function __construct(
 		private int $x,
-		private int $z
+		private int $z,
+		private string $worldName
 	){
 	}
 
@@ -22,5 +23,12 @@ class ChunkCoordinate {
 	 */
 	public function getZ(): int{
 		return $this->z;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWorldName(): string{
+		return $this->worldName;
 	}
 }
