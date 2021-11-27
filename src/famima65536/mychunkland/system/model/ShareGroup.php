@@ -7,7 +7,7 @@ use InvalidArgumentException;
 /**
  * Immutable Value-type class
  */
-class ShareGroup {
+class ShareGroup implements \JsonSerializable {
 	/**
 	 * @param UserId[] $userIds
 	 */
@@ -52,5 +52,14 @@ class ShareGroup {
 
 		$userIds = array_filter($this->userIds, fn(UserId $id) => $userId->equals($id));
 		return new ShareGroup($userIds);
+	}
+
+	public function jsonSerialize(): array{
+		return array_map(fn(UserId $userId) => ["prefix" => $userId->getPrefix(), "name" => $userId->getName()], $this->userIds);
+	}
+
+	public static function deserializeFromJson(array $json): self{
+		$userIds = array_map(fn(array $userIdData) => new UserId($userIdData["prefix"], $userIdData["name"]), $json);
+		return new self($userIds);
 	}
 }
