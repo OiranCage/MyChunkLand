@@ -1,0 +1,5 @@
+database:
+  host: 127.0.0.1
+  username: mychunkland
+  password: ""
+  schema: your_schema
