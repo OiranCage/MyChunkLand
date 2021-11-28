@@ -4,13 +4,14 @@ namespace famima65536\mychunkland\system\repository;
 
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\Section;
+use famima65536\mychunkland\system\model\User;
 use famima65536\mychunkland\system\model\UserId;
 use pocketmine\level\Level;
 
 /**
  * for test, In memory Section Repository
  */
-class InMemorySectionRepository implements ISectionRepository {
+class InMemoryRepository implements ISectionRepository, IUserRepository {
 
 	/**
 	 * @var array<string, array<int, Section>>
@@ -67,5 +68,22 @@ class InMemorySectionRepository implements ISectionRepository {
 			}
 		}
 		return $result;
+	}
+
+	public function find(UserId $userId): User{
+		$owning = [];
+		$shared = [];
+		foreach($this->sections as $sectionsByWorld){
+			foreach($sectionsByWorld as $section){
+				if($section->getOwnerId()->equals($userId)){
+					$owning[] = $section->getCoordinate();
+				}
+				if($section->getShareGroup()->contains($userId)){
+					$shared[] = $section->getCoordinate();
+				}
+			}
+		}
+
+		return new User($userId, $owning, $shared);
 	}
 }
