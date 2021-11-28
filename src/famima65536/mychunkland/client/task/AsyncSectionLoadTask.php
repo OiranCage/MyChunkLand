@@ -24,11 +24,11 @@ class AsyncSectionLoadTask extends AsyncTask {
 	public function onRun(){
 		$connectionConfig = $this->connectionConfig;
 		$chunkCoordinates = unserialize($this->serializedChunkCoordinates);
-		$sectionRepository = new MySQLSectionRepository(new mysqli($connectionConfig["host"], $connectionConfig["username"], $connectionConfig["password"], $connectionConfig["database"]));
+		$sectionRepository = new MySQLSectionRepository(new mysqli($connectionConfig["host"], $connectionConfig["username"], $connectionConfig["password"], $connectionConfig["schema"]));
 		$sections = [];
 		foreach($chunkCoordinates as $chunkCoordinate){
 			/** @var ChunkCoordinate $chunkCoordinate */
-			$sections[] = $sectionRepository->findByCoordinate($chunkCoordinate);
+			$sections[] = [$chunkCoordinate, $sectionRepository->findByCoordinate($chunkCoordinate)];
 		}
 
 		$this->setResult($sections);
@@ -36,8 +36,9 @@ class AsyncSectionLoadTask extends AsyncTask {
 
 	public function onCompletion(Server $server){
 		$sections = $this->getResult();
-
-		/** @var Section[] $sections */
-		Loader::getInstance()->cacheSections($sections);
+		$loader = Loader::getInstance();
+		foreach($sections as $section){
+			$loader->cacheSection($section[0], $section[1]);
+		}
 	}
 }
