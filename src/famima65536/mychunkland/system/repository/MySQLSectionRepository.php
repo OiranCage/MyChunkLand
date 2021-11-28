@@ -48,8 +48,8 @@ class MySQLSectionRepository implements ISectionRepository {
 		$owner_name = $section->getOwnerId()->getName();
 		$owner_prefix = $section->getOwnerId()->getPrefix();
 		$share_group = json_encode($section->getShareGroup(), JSON_PRETTY_PRINT);
-		$group_permission = $section->getGroupPermission();
-		$other_permission = $section->getOtherPermission();
+		$group_permission = $section->getGroupPermission()->toBinary();
+		$other_permission = $section->getOtherPermission()->toBinary();
 		$stmt->execute();
 	}
 

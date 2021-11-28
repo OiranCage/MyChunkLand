@@ -61,7 +61,7 @@ class Section {
 	}
 
 	public function getPermissionFor(UserId $userId): AccessPermission{
-		if($userId === $this->ownerId){
+		if($userId->equals($this->ownerId)){
 			return new AccessPermission(true, true, true); // Dummy Permission
 		}
 
