@@ -3,6 +3,7 @@
 namespace famima65536\mychunkland\client;
 
 use famima65536\mychunkland\client\task\AsyncSectionLoadTask;
+use famima65536\mychunkland\client\task\ShowChunkBoxTask;
 use famima65536\mychunkland\system\model\AccessPermission;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\PlayerUserId;
@@ -13,9 +14,11 @@ use pocketmine\block\Block;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\Level;
+use pocketmine\scheduler\ClosureTask;
 
 class EventListener implements Listener {
 	public function __construct(private Loader $loader){
@@ -90,6 +93,11 @@ class EventListener implements Listener {
 			return;
 		}
 
-		$event->getPlayer()->sendTip("cached chunk\nowner {$section->getOwnerId()->getPrefix()}:{$section->getOwnerId()->getName()}\ngperm {$section->getGroupPermission()->toBinary()}\noperm {$section->getOtherPermission()->toBinary()}");
+		$event->getPlayer()->sendTip("cached chunk\nowner {$section->getOwnerId()->getPrefix()}:{$section->getOwnerId()->getName()}\ngperm {$section->getGroupPermission()->toString()}\noperm {$section->getOtherPermission()->toString()}");
+	}
+
+	public function onPlayerJoin(PlayerJoinEvent $event){
+		$player = $event->getPlayer();
+		$this->loader->getScheduler()->scheduleDelayedRepeatingTask(new ShowChunkBoxTask($player), 20, 20);
 	}
 }
