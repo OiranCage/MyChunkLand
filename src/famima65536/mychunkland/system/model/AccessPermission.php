@@ -61,4 +61,11 @@ class AccessPermission {
 		$binary |= ($this->executable ? 1 /** = 1 << 0 */ : 0);
 		return $binary;
 	}
+
+	public function toString(): string{
+		$text = ($this->readable ? "r" : "");
+		$text .= ($this->writable ? "w" : "");
+		$text .= ($this->executable ? "x" : "");
+		return $text;
+	}
 }
