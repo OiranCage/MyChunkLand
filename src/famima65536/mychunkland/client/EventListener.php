@@ -12,12 +12,15 @@ use famima65536\mychunkland\system\model\ShareGroup;
 use famima65536\mychunkland\system\model\UserId;
 use pocketmine\block\Block;
 use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\level\ChunkLoadEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\Level;
+use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
+use pocketmine\network\mcpe\protocol\types\GameRuleType;
 use pocketmine\scheduler\ClosureTask;
 
 class EventListener implements Listener {
@@ -45,7 +48,6 @@ class EventListener implements Listener {
 		$coordinate = new ChunkCoordinate($block->getFloorX() >> 4, $block->getFloorZ() >> 4, $player->getLevel()->getFolderName());
 		if(!$this->loader->hasCachedSection($coordinate)){
 			$this->loader->tryAsyncCacheSection([$coordinate]);
-			$player->sendMessage("土地情報が読み込まれていないため編集できません。");
 			$event->setCancelled();
 			return;
 		}
@@ -70,16 +72,6 @@ class EventListener implements Listener {
 		$chunkX = $position->getFloorX() >> 4;
 		$chunkZ = $position->getFloorZ() >> 4;
 		$worldName = $event->getPlayer()->getLevel()->getFolderName();
-		$coordinates = [];
-		for($dx = -2; $dx <= 2; $dx++){
-			for($dz = -2; $dz <= 2; $dz++){
-				$coordinate = new ChunkCoordinate($chunkX+$dx, $chunkZ+$dz, $worldName);
-				if(!$this->loader->hasCachedSection($coordinate)){
-					$coordinates[] = $coordinate;
-				}
-			}
-		}
-		$this->loader->tryAsyncCacheSection($coordinates);
 
 		$coordinate = new ChunkCoordinate($chunkX, $chunkZ, $worldName);
 		if(!$this->loader->hasCachedSection($coordinate)){
@@ -93,11 +85,27 @@ class EventListener implements Listener {
 			return;
 		}
 
-		$event->getPlayer()->sendTip("cached chunk\nowner {$section->getOwnerId()->getPrefix()}:{$section->getOwnerId()->getName()}\ngperm {$section->getGroupPermission()->toString()}\noperm {$section->getOtherPermission()->toString()}");
+		$event->getPlayer()->sendTip("cached chunk\nowner {$section->getOwnerId()->getPrefix()}:{$section->getOwnerId()->getName()}\ngperm {$section->getGroupPermission()->toString()}\noperm {$section->getOtherPermission()->toString()}\ntotal-load {$this->loader->countCachedSections()}");
 	}
 
 	public function onPlayerJoin(PlayerJoinEvent $event){
 		$player = $event->getPlayer();
+		$pk = new GameRulesChangedPacket();
+		$pk->gameRules = [
+			"showCoordinates" => [
+				GameRuleType::BOOL,
+				true,
+				true
+			]
+		];
+		$player->sendDataPacket($pk);
 		$this->loader->getScheduler()->scheduleDelayedRepeatingTask(new ShowChunkBoxTask($player), 20, 20);
+	}
+
+	public function onChunkLoad(ChunkLoadEvent $event){
+		$coordinate = new ChunkCoordinate($event->getChunk()->getX(), $event->getChunk()->getZ(), $event->getLevel()->getFolderName());
+		if(!$this->loader->hasCachedSection($coordinate)){
+			$this->loader->tryAsyncCacheSection([$coordinate]);
+		}
 	}
 }

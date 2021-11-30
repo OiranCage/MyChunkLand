@@ -29,17 +29,10 @@ class ChunkBox {
 
 	public function show(Player $player){
 		$world = $player->getPosition()->getLevelNonNull();
-		$block = BlockFactory::get(BlockIds::STRUCTURE_BLOCK, 0, $this->structureBlockPosition);
-		$world->sendBlocks([$player], [$block]);
-
-		$pk = new BlockActorDataPacket();
-
-		$pk->x = $this->structureBlockPosition->x;
-		$pk->y = $this->structureBlockPosition->y;
-		$pk->z = $this->structureBlockPosition->z;
+		$block = BlockFactory::get(BlockIds::STRUCTURE_BLOCK, 0);
 
 		$tag = new CompoundTag();
-		$tag->setInt("data", 5);
+		$tag->setInt("data", 1);
 		$tag->setString("dataField", "");
 		$tag->setByte("ignoreEntities", 1);
 		$tag->setByte("includePlayers", 0);
@@ -52,26 +45,67 @@ class ChunkBox {
 		$tag->setLong("seed", 0);
 		$tag->setByte("showBoundingBox", 1);
 		$tag->setString("structureName", "ChunkBox");
-		$tag->setInt("x", $block->x);
-		$tag->setInt("xStructureOffset", 0);
-		$tag->setInt("xStructureSize", 16);
-		$tag->setInt("y", $block->y);
-		$tag->setInt("yStructureOffset", 0);
+		$tag->setInt("y", 0);
+		$tag->setInt("yStructureOffset", $this->structureBlockPosition->y);
 		$tag->setInt("yStructureSize", 16);
-		$tag->setInt("z", $block->z);
-		$tag->setInt("zStructureOffset", 0);
-		$tag->setInt("zStructureSize", 16);
 
-		$pk->namedtag = (new NetworkLittleEndianNBTStream())->write($tag);
 
-		$player->sendDataPacket($pk);
+		$position = new Position(0,0,0);
+		$position->y = 0;
+		$pk = new BlockActorDataPacket();
+		$pk->y = 0;
+
+		for($i = 0; $i < 5; $i++){
+			$position->x = $this->structureBlockPosition->x + 2 + 2*$i;
+			$position->z = $this->structureBlockPosition->z;
+			$block->position($position);
+			$world->sendBlocks([$player], [$block]);
+
+			$pk->x = $block->x;
+			$pk->z = $block->z;
+			$tag->setInt("xStructureSize", 16 - 4*$i);
+			$tag->setInt("zStructureSize", 16);
+			$tag->setInt("xStructureOffset", -2);
+			$tag->setInt("zStructureOffset", 0);
+			$tag->setInt("x", $block->x);
+			$tag->setInt("z", $block->z);
+
+			$pk->namedtag = (new NetworkLittleEndianNBTStream())->write($tag);
+			$player->sendDataPacket(clone $pk);
+
+			$position->x = $this->structureBlockPosition->x;
+			$position->z = $this->structureBlockPosition->z + 2 + 2*$i;
+			$block->position($position);
+			$world->sendBlocks([$player], [$block]);
+
+			$pk->x = $block->x;
+			$pk->z = $block->z;
+			$tag->setInt("xStructureSize", 16);
+			$tag->setInt("zStructureSize", 16 - 4*$i);
+			$tag->setInt("xStructureOffset", 0);
+			$tag->setInt("zStructureOffset", -2);
+			$tag->setInt("x", $block->x);
+			$tag->setInt("z", $block->z);
+
+			$pk->namedtag = (new NetworkLittleEndianNBTStream())->write($tag);
+			$player->sendDataPacket(clone $pk);
+		}
+
 
 	}
 
 
 	public function hide(Player $player){
 		$world = $player->getPosition()->getLevelNonNull();
-		$world->sendBlocks([$player], [$this->structureBlockPosition]);
+		$position = new Position(0,0,0);
+		for($i = 0; $i < 5; $i++){
+			$position->x = $this->structureBlockPosition->x + 2 + 2*$i;
+			$position->z = $this->structureBlockPosition->z;
+			$world->sendBlocks([$player], [$position]);
+			$position->x = $this->structureBlockPosition->x;
+			$position->z = $this->structureBlockPosition->z + 2 + 2*$i;
+			$world->sendBlocks([$player], [$position]);
+		}
 	}
 
 	public function isInRange(Position $position): bool{

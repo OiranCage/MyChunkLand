@@ -2,12 +2,19 @@
 
 namespace famima65536\mychunkland\client;
 
+use Closure;
 use Exception;
+use famima65536\mychunkland\client\command\MyChunkLandCommand;
+use famima65536\mychunkland\client\form\FormSession;
+use famima65536\mychunkland\client\task\AsyncSectionLoadByOwnerTask;
 use famima65536\mychunkland\client\task\AsyncSectionLoadTask;
 use famima65536\mychunkland\client\task\AsyncSectionOwnTask;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\Section;
+use famima65536\mychunkland\system\model\UserId;
+use JetBrains\PhpStorm\Language;
 use mysqli;
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 
@@ -20,8 +27,12 @@ class Loader extends PluginBase {
 	private array $sectionCache = [];
 	private array $userCache = [];
 
+	/** @var FormSession[] */
+	private array $sessions = [];
+
 	public function onLoad(){
 		self::setInstance($this);
+
 		$this->saveDefaultConfig();
 		$connectionConfig = $this->getConfig()->get("database");
 		$sql = file_get_contents($this->getFile()."/resources/initialize.sql");
@@ -33,6 +44,8 @@ class Loader extends PluginBase {
 			$this->getLogger()->critical("Error happen when connecting MySQL server: {$ex->getMessage()}");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 		}
+
+		$this->getServer()->getCommandMap()->register("mychunkland", new MyChunkLandCommand("mychunkland", "MyChunkLand central command","", ["mcl"], $this));
 	}
 
 	public function onEnable(): void{
@@ -53,6 +66,10 @@ class Loader extends PluginBase {
 			$this->getLogger()->notice("Loading Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
 		}
 		$this->loadingCoordinates = array_merge($this->loadingCoordinates, $chunkCoordinates);
+	}
+
+	public function asyncCacheSectionByOwner(UserId $userId, ?Closure $closure = null){
+		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionLoadByOwnerTask($userId, $this->getConfig()->get("database"), $closure));
 	}
 
 	public function asyncOwnSection(Section $section){
@@ -99,4 +116,21 @@ class Loader extends PluginBase {
 			$this->getLogger()->notice("Unload Cached Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
 		}
 	}
+
+	public function countCachedSections(): int{
+		$count = 0;
+		foreach($this->sectionCache as $sectionCachePerWorld){
+			$count += count($sectionCachePerWorld);
+		}
+		return $count;
+	}
+
+	public function startFormSession(Player $player): void{
+		$this->sessions[$player->getName()] = new FormSession($player);
+	}
+
+	public function getFormSession(Player $player): ?FormSession{
+		return $this->sessions[$player->getName()] ?? null;
+	}
+
 }
