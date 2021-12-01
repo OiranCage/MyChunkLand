@@ -83,7 +83,7 @@ class Loader extends PluginBase {
 		$isCached = $this->hasCachedSection($coordinate);
 		if(!$isCached){
 			$dummy_callback = function($sections)use($closure){
-				$closure($sections[1]);
+				$closure($sections[0][1]);
 			};
 			$this->tryAsyncCacheSection([$coordinate], $dummy_callback);
 			return;
