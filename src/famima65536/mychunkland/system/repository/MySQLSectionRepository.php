@@ -32,7 +32,7 @@ class MySQLSectionRepository implements ISectionRepository {
 			return null;
 		}
 
-		return new Section($coordinate, new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
+		return new Section($coordinate, new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group, true)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
 	}
 
 	/**
@@ -67,7 +67,7 @@ class MySQLSectionRepository implements ISectionRepository {
 
 		$result = [];
 		while($stmt->fetch()){
-			$result[] = new Section(new ChunkCoordinate($x, $y, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
+			$result[] = new Section(new ChunkCoordinate($x, $y, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group, true)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
 		}
 
 		return $result;
@@ -87,7 +87,7 @@ class MySQLSectionRepository implements ISectionRepository {
 
 		$result = [];
 		while($stmt->fetch()){
-			$result[] = new Section(new ChunkCoordinate($x, $y, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
+			$result[] = new Section(new ChunkCoordinate($x, $y, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group, true)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
 		}
 
 		return $result;
