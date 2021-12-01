@@ -8,7 +8,7 @@ use famima65536\mychunkland\client\command\MyChunkLandCommand;
 use famima65536\mychunkland\client\form\FormSession;
 use famima65536\mychunkland\client\task\AsyncSectionLoadByOwnerTask;
 use famima65536\mychunkland\client\task\AsyncSectionLoadTask;
-use famima65536\mychunkland\client\task\AsyncSectionOwnTask;
+use famima65536\mychunkland\client\task\AsyncSectionSaveTask;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\model\UserId;
@@ -52,7 +52,7 @@ class Loader extends PluginBase {
 		$this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
 	}
 
-	public function tryAsyncCacheSection(array $chunkCoordinates){
+	public function tryAsyncCacheSection(array $chunkCoordinates, ?Closure $callback=null){
 		$config = $this->getConfig()->get("database");
 		$chunkCoordinates = array_filter($chunkCoordinates, function($chunkCoordinate){
 			foreach($this->loadingCoordinates as $loading){
@@ -61,7 +61,7 @@ class Loader extends PluginBase {
 			}
 			return true;
 		});
-		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionLoadTask($chunkCoordinates, $config));
+		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionLoadTask($chunkCoordinates, $config, $callback));
 		foreach($chunkCoordinates as $coordinate){
 			$this->getLogger()->notice("Loading Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
 		}
@@ -72,11 +72,24 @@ class Loader extends PluginBase {
 		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionLoadByOwnerTask($userId, $this->getConfig()->get("database"), $closure));
 	}
 
-	public function asyncOwnSection(Section $section){
+	public function asyncSaveSection(Section $section){
 		$config = $this->getConfig()->get("database");
 		$this->clearCachedSection($section->getCoordinate());
 		$this->loadingCoordinates[] = $section->getCoordinate();
-		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionOwnTask($section, $config));
+		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionSaveTask($section, $config));
+	}
+
+	public function loadAndActionOnSection(ChunkCoordinate $coordinate, Closure $closure): void{
+		$isCached = $this->hasCachedSection($coordinate);
+		if(!$isCached){
+			$dummy_callback = function($sections)use($closure){
+				$closure($sections[1]);
+			};
+			$this->tryAsyncCacheSection([$coordinate], $dummy_callback);
+			return;
+		}
+		$section = $this->getCachedSection($coordinate);
+		$closure($section);
 	}
 
 	/**
