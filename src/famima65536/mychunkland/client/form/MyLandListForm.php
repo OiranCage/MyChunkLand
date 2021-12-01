@@ -22,9 +22,11 @@ class MyLandListForm implements Form {
 	public function handleResponse(Player $player, $data): void{
 		if(!is_int($data) or $data >= count($this->sections)){
 			Loader::getInstance()->getFormSession($player)->previous();
+			return;
 		}
 
 		$section = $this->sections[$data];
+		Loader::getInstance()->getFormSession($player)->open(new LandMenuForm($section));
 	}
 
 	/**

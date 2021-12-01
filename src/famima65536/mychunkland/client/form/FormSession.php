@@ -21,10 +21,11 @@ class FormSession {
 	}
 
 	public function previous(){
-		if($this->formStack->count() === 0){
+		if($this->formStack->count() <= 1){
 			return;
 		}
-		$form = $this->formStack->pop();
+		$this->formStack->pop();
+		$form = $this->formStack->top();
 		$this->player->sendForm($form);
 	}
 }
