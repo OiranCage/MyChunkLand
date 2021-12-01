@@ -63,9 +63,9 @@ class AccessPermission {
 	}
 
 	public function toString(): string{
-		$text = ($this->readable ? "r" : "");
-		$text .= ($this->writable ? "w" : "");
-		$text .= ($this->executable ? "x" : "");
+		$text = ($this->readable ? "r" : "-");
+		$text .= ($this->writable ? "w" : "-");
+		$text .= ($this->executable ? "x" : "-");
 		return $text;
 	}
 }
