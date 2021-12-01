@@ -7,9 +7,10 @@ use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\repository\MySQLSectionRepository;
 use mysqli;
+use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
-class AsyncSectionOwnTask extends \pocketmine\scheduler\AsyncTask {
+class AsyncSectionSaveTask extends AsyncTask {
 
 	private string $serializedSection;
 
