@@ -36,7 +36,9 @@ class EventListener implements Listener {
 		$block = $event->getBlock();
 		$coordinate = new ChunkCoordinate($block->getFloorX() >> 4, $block->getFloorZ() >> 4, $player->getLevel()->getFolderName());
 		if(!$this->loader->hasCachedSection($coordinate)){
-			$this->loader->tryAsyncCacheSection([$coordinate]);
+			$this->loader->loadAndActionOnSection($coordinate, function(Section $section) use ($event){
+				$event->call();
+			});
 			$event->setCancelled();
 			return;
 		}
