@@ -28,18 +28,7 @@ class EventListener implements Listener {
 	}
 
 	public function onInteract(PlayerInteractEvent $event){
-		switch($event->getAction()){
-			case PlayerInteractEvent::RIGHT_CLICK_BLOCK:
-				$player = $event->getPlayer();
-				$position = $player->getPosition();
-				$chunkX = $position->getFloorX() >> 4;
-				$chunkZ = $position->getFloorZ() >> 4;
-				$section = new Section(new ChunkCoordinate($chunkX, $chunkZ, $position->getLevel()->getFolderName()), new PlayerUserId($player->getName()), new ShareGroup([]), new AccessPermission(true, true, false), new AccessPermission(false, false, false));
-				$this->loader->asyncOwnSection($section);
-		}
-
 	}
-
 
 	public function onBreakBlock(BlockBreakEvent $event){
 		$player = $event->getPlayer();
