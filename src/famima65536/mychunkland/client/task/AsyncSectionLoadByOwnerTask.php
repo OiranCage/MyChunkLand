@@ -34,6 +34,8 @@ class AsyncSectionLoadByOwnerTask extends \pocketmine\scheduler\AsyncTask {
 			$loader->cacheSection($section->getCoordinate(), $section);
 		}
 
-		($this->callback)($sections);
+		if($this->callback !== null){
+			($this->callback)($sections);
+		}
 	}
 }
