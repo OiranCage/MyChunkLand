@@ -46,7 +46,7 @@ class CentralForm implements Form {
 
 				Loader::getInstance()->loadAndActionOnSection($coordinate, function(?Section $section) use ($player){
 					if($section !== null and $section->getOwnerId()->equals(new PlayerUserId($player->getName()))){
-						Loader::getInstance()->getFormSession($player)->open(new EditLandForm($section));
+						Loader::getInstance()->getFormSession($player)->open(new EditPermissionForm($section));
 						return;
 					}
 

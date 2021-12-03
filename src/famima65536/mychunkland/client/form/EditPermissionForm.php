@@ -9,7 +9,7 @@ use pocketmine\form\Form;
 use pocketmine\form\FormValidationException;
 use pocketmine\Player;
 
-class EditLandForm implements Form {
+class EditPermissionForm implements Form {
 
 	public function __construct(private Section $section){
 	}
