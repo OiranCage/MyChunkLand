@@ -3,3 +3,8 @@ database:
   username: mychunkland
   password: ""
   schema: your_schema
+
+setting:
+  default:
+    protect-y-range:
+      min: 50
