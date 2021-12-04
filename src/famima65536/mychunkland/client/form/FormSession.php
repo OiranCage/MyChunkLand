@@ -3,7 +3,7 @@
 namespace famima65536\mychunkland\client\form;
 
 use pocketmine\form\Form;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use SplStack;
 
 class FormSession {

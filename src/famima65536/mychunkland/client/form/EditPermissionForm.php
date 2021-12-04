@@ -6,8 +6,7 @@ use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\AccessPermission;
 use famima65536\mychunkland\system\model\Section;
 use pocketmine\form\Form;
-use pocketmine\form\FormValidationException;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class EditPermissionForm implements Form {
 

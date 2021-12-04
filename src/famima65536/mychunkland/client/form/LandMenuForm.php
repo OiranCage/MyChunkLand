@@ -6,11 +6,8 @@ use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\model\UserId;
 use pocketmine\form\Form;
-use pocketmine\form\FormValidationException;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
 use pocketmine\math\Vector3;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class LandMenuForm implements Form {
 
@@ -30,7 +27,7 @@ class LandMenuForm implements Form {
 			case 0:
 				$coordinate = $this->section->getCoordinate();
 				$position = new Vector3(($coordinate->getX() << 4) + 8, 64, ($coordinate->getZ() << 4) + 8);
-				$player->teleport($player->getServer()->getLevelByName($coordinate->getWorldName())->getSafeSpawn($position));
+				$player->teleport($player->getServer()->getWorldManager()->getWorldByName($coordinate->getWorldName())->getSafeSpawn($position));
 				break;
 
 			case 1:

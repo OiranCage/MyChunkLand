@@ -47,7 +47,7 @@ class SectionTest extends TestCase {
 		$badUserIds[] = new SystemOwnedUserId("Adam");
 
 		$shareGroup = new ShareGroup($goodUserIds);
-		$section->setShareGroup($shareGroup);
+		$section = $section->shareGroupUpdated($shareGroup);
 
 		foreach($goodUserIds as $goodUserId){
 			$permission = $section->getPermissionFor($goodUserId);

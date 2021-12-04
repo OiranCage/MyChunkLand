@@ -5,8 +5,7 @@ namespace famima65536\mychunkland\client\form;
 use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\Section;
 use pocketmine\form\Form;
-use pocketmine\form\FormValidationException;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class MyLandListForm implements Form {
 

@@ -2,15 +2,17 @@
 
 namespace famima65536\mychunkland\client\feature;
 
+use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
-use pocketmine\block\BlockIds;
-use pocketmine\level\Position;
-use pocketmine\nbt\NetworkLittleEndianNBTStream;
+use pocketmine\block\BlockLegacyIds;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\network\mcpe\NetworkBinaryStream;
+use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
-use pocketmine\network\mcpe\protocol\types\StructureEditorData;
-use pocketmine\Player;
+use pocketmine\network\mcpe\protocol\types\BlockPosition;
+use pocketmine\network\mcpe\protocol\types\CacheableNbt;
+use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use pocketmine\player\Player;
+use pocketmine\world\Position;
 
 class ChunkBox {
 
@@ -19,18 +21,18 @@ class ChunkBox {
 	private int $chunkZ;
 
 	private Position $structureBlockPosition;
+	private int $runtimeId;
 
 	public function __construct(Position $position){
 		$this->chunkX = ($position->getFloorX() >> 4);
 		$this->chunkY = ($position->getFloorY() >> 4);
 		$this->chunkZ = ($position->getFloorZ() >> 4);
-		$this->structureBlockPosition = new Position($this->chunkX << 4, $this->chunkY << 4, $this->chunkZ << 4);
+		$this->runtimeId = RuntimeBlockMapping::getInstance()->toRuntimeId(BlockFactory::getInstance()->get(BlockLegacyIds::STRUCTURE_BLOCK, 0)->getFullId());
+
+		$this->structureBlockPosition = new Position($this->chunkX << 4, $this->chunkY << 4, $this->chunkZ << 4, null);
 	}
 
 	public function show(Player $player){
-		$world = $player->getPosition()->getLevelNonNull();
-		$block = BlockFactory::get(BlockIds::STRUCTURE_BLOCK, 0);
-
 		$tag = new CompoundTag();
 		$tag->setInt("data", 1);
 		$tag->setString("dataField", "");
@@ -50,61 +52,69 @@ class ChunkBox {
 		$tag->setInt("yStructureSize", 16);
 
 
-		$position = new Position(0,0,0);
+		$position = new Position(0,0,0, null);
 		$position->y = 0;
 		$pk = new BlockActorDataPacket();
-		$pk->y = 0;
-
+		$packets = [];
+		$updateBlockPackets = [];
 		for($i = 0; $i < 5; $i++){
 			$position->x = $this->structureBlockPosition->x + 2 + 2*$i;
 			$position->z = $this->structureBlockPosition->z;
-			$block->position($position);
-			$world->sendBlocks([$player], [$block]);
+			$pk->blockPosition = BlockPosition::fromVector3($position);
+			$updateBlockPackets[] = UpdateBlockPacket::create($pk->blockPosition, $this->runtimeId, 2, 0);
 
-			$pk->x = $block->x;
-			$pk->z = $block->z;
 			$tag->setInt("xStructureSize", 16 - 4*$i);
 			$tag->setInt("zStructureSize", 16);
 			$tag->setInt("xStructureOffset", -2);
 			$tag->setInt("zStructureOffset", 0);
-			$tag->setInt("x", $block->x);
-			$tag->setInt("z", $block->z);
-
-			$pk->namedtag = (new NetworkLittleEndianNBTStream())->write($tag);
-			$player->sendDataPacket(clone $pk);
+			$tag->setInt("x", $position->x);
+			$tag->setInt("z", $position->z);
+			$pk->nbt = new CacheableNbt($tag->safeClone());
+			$packets[] = clone $pk;
 
 			$position->x = $this->structureBlockPosition->x;
 			$position->z = $this->structureBlockPosition->z + 2 + 2*$i;
-			$block->position($position);
-			$world->sendBlocks([$player], [$block]);
+			$pk->blockPosition = BlockPosition::fromVector3($position);
+			$updateBlockPackets[] = UpdateBlockPacket::create($pk->blockPosition, $this->runtimeId, 2, 0);
 
-			$pk->x = $block->x;
-			$pk->z = $block->z;
 			$tag->setInt("xStructureSize", 16);
 			$tag->setInt("zStructureSize", 16 - 4*$i);
 			$tag->setInt("xStructureOffset", 0);
 			$tag->setInt("zStructureOffset", -2);
-			$tag->setInt("x", $block->x);
-			$tag->setInt("z", $block->z);
-
-			$pk->namedtag = (new NetworkLittleEndianNBTStream())->write($tag);
-			$player->sendDataPacket(clone $pk);
+			$tag->setInt("x", $position->x);
+			$tag->setInt("z", $position->z);
+			$pk->nbt = new CacheableNbt($tag->safeClone());
+			$packets[] = clone $pk;
 		}
+
+		foreach($updateBlockPackets as $pk){
+			$player->getNetworkSession()->sendDataPacket($pk);
+		}
+
+		foreach($packets as $pk){
+			$player->getNetworkSession()->sendDataPacket($pk);
+		}
+
 
 
 	}
 
 
 	public function hide(Player $player){
-		$world = $player->getPosition()->getLevelNonNull();
-		$position = new Position(0,0,0);
+		$world = $player->getWorld();
+		$position = new Position(0,0,0, null);
+		$updateBlocks = [];
 		for($i = 0; $i < 5; $i++){
 			$position->x = $this->structureBlockPosition->x + 2 + 2*$i;
 			$position->z = $this->structureBlockPosition->z;
-			$world->sendBlocks([$player], [$position]);
+			$updateBlocks[] = clone $position;
 			$position->x = $this->structureBlockPosition->x;
 			$position->z = $this->structureBlockPosition->z + 2 + 2*$i;
-			$world->sendBlocks([$player], [$position]);
+			$updateBlocks[] = clone $position;
+		}
+
+		foreach($world->createBlockUpdatePackets($updateBlocks) as $pk){
+			$player->getNetworkSession()->sendDataPacket($pk);
 		}
 	}
 

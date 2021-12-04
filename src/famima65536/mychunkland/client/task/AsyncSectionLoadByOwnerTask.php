@@ -8,7 +8,6 @@ use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\model\UserId;
 use famima65536\mychunkland\system\repository\MySQLSectionRepository;
 use mysqli;
-use pocketmine\Server;
 
 class AsyncSectionLoadByOwnerTask extends \pocketmine\scheduler\AsyncTask {
 
@@ -18,7 +17,7 @@ class AsyncSectionLoadByOwnerTask extends \pocketmine\scheduler\AsyncTask {
 		$this->serializedUserId = serialize($userId);
 	}
 
-	public function onRun(){
+	public function onRun(): void{
 		$userId = unserialize($this->serializedUserId);
 		$connectionConfig = $this->connectionConfig;
 		$sectionRepository = new MySQLSectionRepository(new mysqli($connectionConfig["host"], $connectionConfig["username"], $connectionConfig["password"], $connectionConfig["schema"]));
@@ -26,7 +25,7 @@ class AsyncSectionLoadByOwnerTask extends \pocketmine\scheduler\AsyncTask {
 		$this->setResult($sections);
 	}
 
-	public function onCompletion(Server $server){
+	public function onCompletion(): void{
 		$sections = $this->getResult();
 		$loader = Loader::getInstance();
 		/** @var Section[] $sections */

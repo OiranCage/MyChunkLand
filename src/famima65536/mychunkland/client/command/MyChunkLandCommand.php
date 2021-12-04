@@ -6,7 +6,7 @@ use famima65536\mychunkland\client\form\CentralForm;
 use famima65536\mychunkland\client\Loader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class MyChunkLandCommand extends Command {
 

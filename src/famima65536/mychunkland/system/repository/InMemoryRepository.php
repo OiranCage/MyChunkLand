@@ -37,7 +37,7 @@ class InMemoryRepository implements ISectionRepository, IUserRepository {
 	 */
 	public function save(Section $section): void{
 		$coordinate = $section->getCoordinate();
-		$this->sections[$coordinate->getWorldName()][Level::chunkHash($coordinate->getX(), $coordinate->getZ())] = $section;
+		$this->sections[$coordinate->getWorldName()][$coordinate->hash()] = $section;
 	}
 
 	/**

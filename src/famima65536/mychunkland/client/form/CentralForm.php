@@ -3,13 +3,11 @@
 namespace famima65536\mychunkland\client\form;
 
 use famima65536\mychunkland\client\Loader;
-use famima65536\mychunkland\client\task\AsyncSectionSaveTask;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\PlayerUserId;
 use famima65536\mychunkland\system\model\Section;
 use pocketmine\form\Form;
-use pocketmine\form\FormValidationException;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class CentralForm implements Form {
 
@@ -33,7 +31,7 @@ class CentralForm implements Form {
 				$position = $player->getPosition();
 				$chunkX = $position->getFloorX() >> 4;
 				$chunkZ = $position->getFloorZ() >> 4;
-				$worldName = $position->getLevel()->getFolderName();
+				$worldName = $position->getWorld()->getFolderName();
 				Loader::getInstance()->getFormSession($player)->open(new OwnLandForm(new ChunkCoordinate($chunkX, $chunkZ, $worldName)));
 				break;
 
@@ -41,7 +39,7 @@ class CentralForm implements Form {
 				$position = $player->getPosition();
 				$chunkX = $position->getFloorX() >> 4;
 				$chunkZ = $position->getFloorZ() >> 4;
-				$worldName = $position->getLevel()->getFolderName();
+				$worldName = $position->getWorld()->getFolderName();
 				$coordinate = new ChunkCoordinate($chunkX, $chunkZ, $worldName);
 
 				Loader::getInstance()->loadAndActionOnSection($coordinate, function(?Section $section) use ($player){

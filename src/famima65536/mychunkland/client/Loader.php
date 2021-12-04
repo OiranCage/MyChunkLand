@@ -12,9 +12,8 @@ use famima65536\mychunkland\client\task\AsyncSectionSaveTask;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\model\UserId;
-use JetBrains\PhpStorm\Language;
 use mysqli;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 
@@ -30,7 +29,7 @@ class Loader extends PluginBase {
 	/** @var FormSession[] */
 	private array $sessions = [];
 
-	public function onLoad(){
+	public function onLoad(): void{
 		self::setInstance($this);
 
 		$this->saveDefaultConfig();

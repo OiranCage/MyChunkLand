@@ -2,7 +2,7 @@
 
 namespace famima65536\mychunkland\system\model;
 
-use pocketmine\level\Level;
+use pocketmine\world\World;
 
 /** This is value-type class */
 class ChunkCoordinate {
@@ -43,6 +43,6 @@ class ChunkCoordinate {
 	}
 
 	public function hash(): int{
-		return Level::chunkHash($this->x, $this->z);
+		return World::chunkHash($this->x, $this->z);
 	}
 }

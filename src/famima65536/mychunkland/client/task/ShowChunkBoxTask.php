@@ -3,7 +3,7 @@
 namespace famima65536\mychunkland\client\task;
 
 use famima65536\mychunkland\client\feature\ChunkBox;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
 
 class ShowChunkBoxTask extends Task {
@@ -18,7 +18,7 @@ class ShowChunkBoxTask extends Task {
 		$this->chunkBox->show($this->player);
 	}
 
-	public function onRun(int $currentTick){
+	public function onRun(): void{
 		if(!$this->player->isConnected()){
 			$this->getHandler()->cancel();
 			return;

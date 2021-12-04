@@ -4,7 +4,6 @@ namespace famima65536\mychunkland\system\repository;
 
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\Section;
-use famima65536\mychunkland\system\model\User;
 use famima65536\mychunkland\system\model\UserId;
 
 interface ISectionRepository {

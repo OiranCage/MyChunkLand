@@ -2,60 +2,44 @@
 
 namespace famima65536\mychunkland\client;
 
-use famima65536\mychunkland\client\task\AsyncSectionLoadTask;
 use famima65536\mychunkland\client\task\ShowChunkBoxTask;
-use famima65536\mychunkland\system\model\AccessPermission;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\PlayerUserId;
 use famima65536\mychunkland\system\model\Section;
-use famima65536\mychunkland\system\model\ShareGroup;
-use famima65536\mychunkland\system\model\UserId;
 use pocketmine\block\Block;
+use pocketmine\block\Chest;
 use pocketmine\block\Door;
 use pocketmine\block\FenceGate;
+use pocketmine\block\Furnace;
 use pocketmine\block\ItemFrame;
 use pocketmine\block\Trapdoor;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\block\BlockEvent;
 use pocketmine\event\inventory\InventoryOpenEvent;
-use pocketmine\event\level\ChunkLoadEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\inventory\ChestInventory;
-use pocketmine\inventory\ContainerInventory;
-use pocketmine\level\format\Chunk;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
+use pocketmine\event\world\ChunkLoadEvent;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
+use pocketmine\network\mcpe\protocol\types\BoolGameRule;
 use pocketmine\network\mcpe\protocol\types\GameRuleType;
-use pocketmine\scheduler\ClosureTask;
 
 class EventListener implements Listener {
 	public function __construct(private Loader $loader){
 	}
 
-	public function onInventoryOpen(InventoryOpenEvent $event){
-		$inventory = $event->getInventory();
-		if(!$inventory instanceof ContainerInventory){
-			return;
-		}
-
-		$this->onInventoryRead($event, $inventory->getHolder());
-
-	}
-
 	public function onInteract(PlayerInteractEvent $event){
 		switch($event->getAction()){
 			case PlayerInteractEvent::RIGHT_CLICK_BLOCK:
-			case PlayerInteractEvent::PHYSICAL:
 				$block = $event->getBlock();
 
 				if($this->matchUpdateBlockList($block)){
-					$this->onBlockUpdate($event, $block->asPosition());
+					$this->onBlockUpdate($event, $block->getPosition());
+				}
+
+				if($this->matchContainerBlockList($block)){
+					$this->onOpenOrBreakContainer($event, $block->getPosition());
 				}
 				break;
 		}
@@ -77,8 +61,23 @@ class EventListener implements Listener {
 		return false;
 	}
 
+
+	private function matchContainerBlockList(Block $block){
+		$blocks = [
+			Chest::class,
+			Furnace::class
+		];
+
+		foreach($blocks as $blockClass){
+			if($block instanceof $blockClass){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function onBlockBreak(BlockBreakEvent $event){
-		$this->onBlockUpdate($event, $event->getBlock()->asPosition());
+		$this->onBlockUpdate($event, $event->getBlock()->getPosition());
 	}
 
 	/**
@@ -87,26 +86,58 @@ class EventListener implements Listener {
 	private function onBlockUpdate(BlockBreakEvent|PlayerInteractEvent $event, Vector3 $position){
 		$player = $event->getPlayer();
 		$userId = new PlayerUserId($player->getName());
-		$coordinate = new ChunkCoordinate($position->getFloorX() >> 4, $position->getFloorZ() >> 4, $player->getLevel()->getFolderName());
+		$coordinate = new ChunkCoordinate($position->getFloorX() >> 4, $position->getFloorZ() >> 4, $player->getWorld()->getFolderName());
 		if(!$this->loader->hasCachedSection($coordinate)){
 			$this->loader->loadAndActionOnSection($coordinate, function(?Section $section) use ($event){
-				$event->setCancelled(false);
+				$event->uncancel();
 				$event->call();
 			});
-			$event->setCancelled();
+			$event->cancel();
 			return;
 		}
 
 		$section = $this->loader->getCachedSection($coordinate);
 		if($section === null){
 			$player->sendMessage("所有していない土地は編集できません。");
-			$event->setCancelled();
+			$event->cancel();
 			return;
 		}
 
 		if(!$section->getPermissionFor($userId)->isWritable()){
 			$player->sendMessage("権限がないため編集できません");
-			$event->setCancelled();
+			$event->cancel();
+			return;
+		}
+
+	}
+
+	/**
+	 * @param BlockBreakEvent|PlayerInteractEvent $event
+	 * @param Vector3 $position
+	 */
+	private function onOpenOrBreakContainer(BlockBreakEvent|PlayerInteractEvent $event, Vector3 $position){
+		$player = $event->getPlayer();
+		$userId = new PlayerUserId($player->getName());
+		$coordinate = new ChunkCoordinate($position->getFloorX() >> 4, $position->getFloorZ() >> 4, $player->getWorld()->getFolderName());
+		if(!$this->loader->hasCachedSection($coordinate)){
+			$this->loader->loadAndActionOnSection($coordinate, function(?Section $section) use ($event){
+				$event->uncancel();
+				$event->call();
+			});
+			$event->cancel();
+			return;
+		}
+
+		$section = $this->loader->getCachedSection($coordinate);
+		if($section === null){
+			$player->sendMessage("所有していない土地は編集できません。");
+			$event->cancel();
+			return;
+		}
+
+		if(!$section->getPermissionFor($userId)->isReadable()){
+			$player->sendMessage("権限がないため閲覧/破壊できません");
+			$event->cancel();
 			return;
 		}
 
@@ -116,7 +147,7 @@ class EventListener implements Listener {
 		$position = $event->getPlayer()->getPosition();
 		$chunkX = $position->getFloorX() >> 4;
 		$chunkZ = $position->getFloorZ() >> 4;
-		$worldName = $event->getPlayer()->getLevel()->getFolderName();
+		$worldName = $event->getPlayer()->getWorld()->getFolderName();
 
 		$coordinate = new ChunkCoordinate($chunkX, $chunkZ, $worldName);
 		if(!$this->loader->hasCachedSection($coordinate)){
@@ -137,48 +168,17 @@ class EventListener implements Listener {
 		$player = $event->getPlayer();
 		$pk = new GameRulesChangedPacket();
 		$pk->gameRules = [
-			"showCoordinates" => [
-				GameRuleType::BOOL,
-				true,
-				true
-			]
+			"showCoordinates" => new BoolGameRule(true, true)
 		];
-		$player->sendDataPacket($pk);
+		$player->getNetworkSession()->sendDataPacket($pk);
 		$this->loader->getScheduler()->scheduleDelayedRepeatingTask(new ShowChunkBoxTask($player), 20, 20);
 	}
 
 	public function onChunkLoad(ChunkLoadEvent $event){
-		$coordinate = new ChunkCoordinate($event->getChunk()->getX(), $event->getChunk()->getZ(), $event->getLevel()->getFolderName());
+		$coordinate = new ChunkCoordinate($event->getChunkX(), $event->getChunkZ(), $event->getWorld()->getFolderName());
 		if(!$this->loader->hasCachedSection($coordinate)){
 			$this->loader->tryAsyncCacheSection([$coordinate]);
 		}
 	}
 
-	private function onInventoryRead(InventoryOpenEvent $event, Vector3 $position){
-		$player = $event->getPlayer();
-		$userId = new PlayerUserId($player->getName());
-		$coordinate = new ChunkCoordinate($position->getFloorX() >> 4, $position->getFloorZ() >> 4, $player->getLevel()->getFolderName());
-		if(!$this->loader->hasCachedSection($coordinate)){
-			$this->loader->loadAndActionOnSection($coordinate, function(?Section $section) use ($event){
-				$event->setCancelled(false);
-				$event->call();
-			});
-			$event->setCancelled();
-			return;
-		}
-
-		$section = $this->loader->getCachedSection($coordinate);
-		if($section === null){
-			$player->sendMessage("所有してされていない土地は編集できません。");
-			$event->setCancelled();
-			return;
-		}
-
-		if(!$section->getPermissionFor($userId)->isReadable()){
-			$player->sendMessage("権限がないため編集できません");
-			$event->setCancelled();
-			return;
-		}
-
-	}
 }

@@ -5,11 +5,9 @@ namespace famima65536\mychunkland\client\task;
 use Closure;
 use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
-use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\repository\MySQLSectionRepository;
 use mysqli;
 use pocketmine\scheduler\AsyncTask;
-use pocketmine\Server;
 
 class AsyncSectionLoadTask extends AsyncTask {
 
@@ -22,7 +20,7 @@ class AsyncSectionLoadTask extends AsyncTask {
 		$this->serializedChunkCoordinates = serialize($chunkCoordinates);
 	}
 
-	public function onRun(){
+	public function onRun(): void{
 		$connectionConfig = $this->connectionConfig;
 		$chunkCoordinates = unserialize($this->serializedChunkCoordinates);
 		$sectionRepository = new MySQLSectionRepository(new mysqli($connectionConfig["host"], $connectionConfig["username"], $connectionConfig["password"], $connectionConfig["schema"]));
@@ -35,7 +33,7 @@ class AsyncSectionLoadTask extends AsyncTask {
 		$this->setResult($sections);
 	}
 
-	public function onCompletion(Server $server){
+	public function onCompletion(): void{
 		$sections = $this->getResult();
 		$loader = Loader::getInstance();
 		foreach($sections as $section){
