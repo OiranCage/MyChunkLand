@@ -18,8 +18,7 @@ class MySQLSectionRepository implements ISectionRepository {
 	 * @inheritDoc
 	 */
 	public function findByCoordinate(ChunkCoordinate $coordinate): ?Section{
-
-		$stmt = $this->connection->prepare("SELECT owner_name, owner_prefix, group_permission, other_permission, share_group FROM mychunklandtest01.section WHERE x=? AND z=? AND world_name=?");
+		$stmt = $this->connection->prepare("SELECT owner_name, owner_prefix, group_permission, other_permission, share_group FROM section WHERE x=? AND z=? AND world_name=?");
 		$stmt->bind_param('iis', $x, $z, $world_name);
 		$x = $coordinate->getX();
 		$z = $coordinate->getZ();
@@ -38,7 +37,7 @@ class MySQLSectionRepository implements ISectionRepository {
 	 * @inheritDoc
 	 */
 	public function save(Section $section): void{
-		$stmt = $this->connection->prepare("INSERT INTO mychunklandtest01.section(x, z, world_name, owner_name, owner_prefix, share_group, group_permission, other_permission) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE owner_name = ?, owner_prefix = ?, share_group = ?, group_permission = ?, other_permission = ?");
+		$stmt = $this->connection->prepare("INSERT INTO section(x, z, world_name, owner_name, owner_prefix, share_group, group_permission, other_permission) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE owner_name = ?, owner_prefix = ?, share_group = ?, group_permission = ?, other_permission = ?");
 
 		$stmt->bind_param('iissssiisssii', $x, $z, $world_name, $owner_name, $owner_prefix, $share_group, $group_permission, $other_permission, $owner_name, $owner_prefix, $share_group, $group_permission, $other_permission);
 		$x = $section->getCoordinate()->getX();
@@ -56,7 +55,7 @@ class MySQLSectionRepository implements ISectionRepository {
 	 * @inheritDoc
 	 */
 	public function findByOwner(UserId $userId): array{
-		$stmt = $this->connection->prepare("SELECT x, z, world_name, group_permission, other_permission, share_group FROM mychunklandtest01.section WHERE owner_prefix=? AND owner_name=?");
+		$stmt = $this->connection->prepare("SELECT x, z, world_name, group_permission, other_permission, share_group FROM section WHERE owner_prefix=? AND owner_name=?");
 		$stmt->bind_param('ss', $owner_prefix, $owner_name);
 		$owner_prefix = $userId->getPrefix();
 		$owner_name = $userId->getName();
