@@ -24,9 +24,5 @@ class AsyncSectionSaveTask extends AsyncTask {
 	}
 
 	public function onCompletion(): void{
-		$section = unserialize($this->serializedSection);
-		$loader = Loader::getInstance();
-		/** @var Section $section */
-		$loader->cacheSection($section->getCoordinate(), $section);
 	}
 }

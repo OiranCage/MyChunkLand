@@ -6,5 +6,10 @@ database:
 
 setting:
   default:
+    update-block-without-owning: true
     protect-y-range:
-      min: 50
+#      min: 50
+#      max: 200
+  worlds:
+#     WorldFolderName:
+#       update-block-without-owning: false

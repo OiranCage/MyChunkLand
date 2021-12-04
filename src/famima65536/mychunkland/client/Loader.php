@@ -16,25 +16,22 @@ use mysqli;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
+use Webmozart\PathUtil\Path;
 
 class Loader extends PluginBase {
 
 	use SingletonTrait;
 
-	/** @var ChunkCoordinate[] $loadingCoordinates */
-	private array $loadingCoordinates = [];
-	private array $sectionCache = [];
-	private array $userCache = [];
+	private SectionCache $sectionCache;
 
 	/** @var FormSession[] */
 	private array $sessions = [];
 
 	public function onLoad(): void{
 		self::setInstance($this);
-
 		$this->saveDefaultConfig();
 		$connectionConfig = $this->getConfig()->get("database");
-		$sql = file_get_contents($this->getFile()."/resources/initialize.sql");
+		$sql = file_get_contents(Path::join($this->getFile(), "resources", "initialize.sql"));
 		$this->getLogger()->info($sql);
 		try{
 			$connection = new mysqli($connectionConfig["host"], $connectionConfig["username"], $connectionConfig["password"], $connectionConfig["schema"]);
@@ -44,6 +41,8 @@ class Loader extends PluginBase {
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 		}
 
+		LanguageManager::setInstance(new LanguageManager(Path::join($this->getFile(), "resources", "lang")));
+		$this->sectionCache = new SectionCache();
 		$this->getServer()->getCommandMap()->register("mychunkland", new MyChunkLandCommand("mychunkland", "MyChunkLand central command","", ["mcl"], $this));
 	}
 
@@ -53,18 +52,10 @@ class Loader extends PluginBase {
 
 	public function tryAsyncCacheSection(array $chunkCoordinates, ?Closure $callback=null){
 		$config = $this->getConfig()->get("database");
-		$chunkCoordinates = array_filter($chunkCoordinates, function($chunkCoordinate){
-			foreach($this->loadingCoordinates as $loading){
-				if($loading->equals($chunkCoordinate))
-					return false;
-			}
-			return true;
-		});
 		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionLoadTask($chunkCoordinates, $config, $callback));
 		foreach($chunkCoordinates as $coordinate){
-			$this->getLogger()->notice("Loading Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
+			$this->getLogger()->debug("Loading Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
 		}
-		$this->loadingCoordinates = array_merge($this->loadingCoordinates, $chunkCoordinates);
 	}
 
 	public function asyncCacheSectionByOwner(UserId $userId, ?Closure $closure = null){
@@ -73,13 +64,12 @@ class Loader extends PluginBase {
 
 	public function asyncSaveSection(Section $section){
 		$config = $this->getConfig()->get("database");
-		$this->clearCachedSection($section->getCoordinate());
-		$this->loadingCoordinates[] = $section->getCoordinate();
+		$this->sectionCache->writeCache($section, true);
 		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionSaveTask($section, $config));
 	}
 
 	public function loadAndActionOnSection(ChunkCoordinate $coordinate, Closure $closure): void{
-		$isCached = $this->hasCachedSection($coordinate);
+		$isCached = $this->sectionCache->hasCache($coordinate);
 		if(!$isCached){
 			$dummy_callback = function($sections)use($closure){
 				$closure($sections[0][1]);
@@ -87,54 +77,8 @@ class Loader extends PluginBase {
 			$this->tryAsyncCacheSection([$coordinate], $dummy_callback);
 			return;
 		}
-		$section = $this->getCachedSection($coordinate);
+		$section = $this->sectionCache->readCache($coordinate);
 		$closure($section);
-	}
-
-	/**
-	 * @param ChunkCoordinate $coordinate
-	 * @param Section|null $section
-	 */
-	public function cacheSection(ChunkCoordinate $coordinate, ?Section $section){
-		if(!isset($this->sectionCache[$coordinate->getWorldName()])){
-			$this->sectionCache[$coordinate->getWorldName()] = [];
-		}
-		$this->sectionCache[$coordinate->getWorldName()][$coordinate->hash()] = $section;
-		$this->getLogger()->notice("Cached Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
-
-		$this->loadingCoordinates = array_filter($this->loadingCoordinates, function($chunkCoordinate)use($coordinate){
-			return !$coordinate->equals($chunkCoordinate);
-		});
-	}
-
-	public function getCachedSection(ChunkCoordinate $coordinate): ?Section{
-		if(!$this->hasCachedSection($coordinate)){
-			return null;
-		}
-
-		return $this->sectionCache[$coordinate->getWorldName()][$coordinate->hash()];
-	}
-
-	public function hasCachedSection(ChunkCoordinate $coordinate): bool{
-		return (
-			isset($this->sectionCache[$coordinate->getWorldName()]) and
-			array_key_exists($coordinate->hash(), $this->sectionCache[$coordinate->getWorldName()])
-		);
-	}
-
-	public function clearCachedSection(ChunkCoordinate $coordinate){
-		if($this->hasCachedSection($coordinate)){
-			unset($this->sectionCache[$coordinate->getWorldName()][$coordinate->hash()]);
-			$this->getLogger()->notice("Unload Cached Section #{x: {$coordinate->getX()}, z: {$coordinate->getZ()}, world: {$coordinate->getWorldName()}}");
-		}
-	}
-
-	public function countCachedSections(): int{
-		$count = 0;
-		foreach($this->sectionCache as $sectionCachePerWorld){
-			$count += count($sectionCachePerWorld);
-		}
-		return $count;
 	}
 
 	public function startFormSession(Player $player): void{
@@ -143,6 +87,10 @@ class Loader extends PluginBase {
 
 	public function getFormSession(Player $player): ?FormSession{
 		return $this->sessions[$player->getName()] ?? null;
+	}
+
+	public function getSectionCache(): SectionCache{
+		return $this->sectionCache;
 	}
 
 }

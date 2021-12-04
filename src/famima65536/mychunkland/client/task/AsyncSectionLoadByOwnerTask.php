@@ -27,10 +27,10 @@ class AsyncSectionLoadByOwnerTask extends \pocketmine\scheduler\AsyncTask {
 
 	public function onCompletion(): void{
 		$sections = $this->getResult();
-		$loader = Loader::getInstance();
+		$sectionCache = Loader::getInstance()->getSectionCache();
 		/** @var Section[] $sections */
 		foreach($sections as $section){
-			$loader->cacheSection($section->getCoordinate(), $section);
+			$sectionCache->writeCache($section, false);
 		}
 
 		if($this->callback !== null){

@@ -35,9 +35,13 @@ class AsyncSectionLoadTask extends AsyncTask {
 
 	public function onCompletion(): void{
 		$sections = $this->getResult();
-		$loader = Loader::getInstance();
-		foreach($sections as $section){
-			$loader->cacheSection($section[0], $section[1]);
+		$sectionCache = Loader::getInstance()->getSectionCache();
+		foreach($sections as $sectionData){
+			if($sectionData[1] !== null){
+				$sectionCache->writeCache($sectionData[1], false);
+			}else{
+				$sectionCache->writeNullCache($sectionData[0], false);
+			}
 		}
 
 		if($this->callback !== null){

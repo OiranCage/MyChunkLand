@@ -2,6 +2,7 @@
 
 namespace famima65536\mychunkland\client\form;
 
+use famima65536\mychunkland\client\LanguageManager;
 use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\PlayerUserId;
 use famima65536\mychunkland\system\model\Section;
@@ -18,7 +19,7 @@ class AddGroupMemberForm implements Form {
 	/**
 	 * @param Section $section
 	 */
-	public function __construct(private Section $section){
+	public function __construct(private Section $section, private Player $player){
 		$this->playerList[] = "-";
 		foreach(Server::getInstance()->getOnlinePlayers() as $player){
 			$this->playerList[] = $player->getName();
@@ -40,7 +41,7 @@ class AddGroupMemberForm implements Form {
 		try{
 			$section = $this->section->shareGroupUpdated($this->section->getShareGroup()->add(new PlayerUserId($addedPlayerName)));
 		}catch(InvalidArgumentException $ex){
-			$player->sendMessage($ex->getMessage());
+			$player->sendMessage(LanguageManager::getInstance()->getLanguageFor($this->player)->get("form.add-group-member.error.duplicate"));
 			return;
 		}
 
@@ -58,26 +59,27 @@ class AddGroupMemberForm implements Form {
 	}
 
 	public function jsonSerialize(){
+		$language = LanguageManager::getInstance()->getLanguageFor($this->player);
 		return [
 			"type" => "custom_form",
-			"title" => "Add Group Member",
+			"title" => $language->get("form.add-group-member.title"),
 			"content" => [
 				[
 					"type" => "label",
-					"text" => "Input from online player"
+					"text" => $language->get("form.add-group-member.choose-from-online.label")
 				],
 				[
 					"type" => "dropdown",
-					"text" => "Online player list",
+					"text" => $language->get("form.add-group-member.choose-from-online.dropdown"),
 					"options" => $this->playerList
 				],
 				[
 					"type" => "label",
-					"text" => "Input by name"
+					"text" => $language->get("form.add-group-member.input-name-manually.label")
 				],
 				[
 					"type" => "input",
-					"text" => "Enter Player Name",
+					"text" => $language->get("form.add-group-member.input-name-manually.input"),
 					"default" => ""
 				]
 			]

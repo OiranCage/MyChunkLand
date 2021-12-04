@@ -14,7 +14,6 @@ use pocketmine\block\Furnace;
 use pocketmine\block\ItemFrame;
 use pocketmine\block\Trapdoor;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\inventory\InventoryOpenEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
@@ -23,7 +22,6 @@ use pocketmine\event\world\ChunkLoadEvent;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
 use pocketmine\network\mcpe\protocol\types\BoolGameRule;
-use pocketmine\network\mcpe\protocol\types\GameRuleType;
 
 class EventListener implements Listener {
 	public function __construct(private Loader $loader){
@@ -62,7 +60,7 @@ class EventListener implements Listener {
 	}
 
 
-	private function matchContainerBlockList(Block $block){
+	private function matchContainerBlockList(Block $block): bool{
 		$blocks = [
 			Chest::class,
 			Furnace::class
@@ -87,7 +85,7 @@ class EventListener implements Listener {
 		$player = $event->getPlayer();
 		$userId = new PlayerUserId($player->getName());
 		$coordinate = new ChunkCoordinate($position->getFloorX() >> 4, $position->getFloorZ() >> 4, $player->getWorld()->getFolderName());
-		if(!$this->loader->hasCachedSection($coordinate)){
+		if(!$this->loader->getSectionCache()->hasCache($coordinate)){
 			$this->loader->loadAndActionOnSection($coordinate, function(?Section $section) use ($event){
 				$event->uncancel();
 				$event->call();
@@ -96,7 +94,7 @@ class EventListener implements Listener {
 			return;
 		}
 
-		$section = $this->loader->getCachedSection($coordinate);
+		$section = $this->loader->getSectionCache()->readCache($coordinate);
 		if($section === null){
 			$player->sendMessage("所有していない土地は編集できません。");
 			$event->cancel();
@@ -119,7 +117,7 @@ class EventListener implements Listener {
 		$player = $event->getPlayer();
 		$userId = new PlayerUserId($player->getName());
 		$coordinate = new ChunkCoordinate($position->getFloorX() >> 4, $position->getFloorZ() >> 4, $player->getWorld()->getFolderName());
-		if(!$this->loader->hasCachedSection($coordinate)){
+		if(!$this->loader->getSectionCache()->hasCache($coordinate)){
 			$this->loader->loadAndActionOnSection($coordinate, function(?Section $section) use ($event){
 				$event->uncancel();
 				$event->call();
@@ -128,7 +126,7 @@ class EventListener implements Listener {
 			return;
 		}
 
-		$section = $this->loader->getCachedSection($coordinate);
+		$section = $this->loader->getSectionCache()->readCache($coordinate);
 		if($section === null){
 			$player->sendMessage("所有していない土地は編集できません。");
 			$event->cancel();
@@ -150,18 +148,18 @@ class EventListener implements Listener {
 		$worldName = $event->getPlayer()->getWorld()->getFolderName();
 
 		$coordinate = new ChunkCoordinate($chunkX, $chunkZ, $worldName);
-		if(!$this->loader->hasCachedSection($coordinate)){
+		if(!$this->loader->getSectionCache()->hasCache($coordinate)){
 			$event->getPlayer()->sendTip("uncached chunk");
 			return;
 		}
 
-		$section = $this->loader->getCachedSection($coordinate);
+		$section = $this->loader->getSectionCache()->readCache($coordinate);
 		if($section === null){
 			$event->getPlayer()->sendTip("cached chunk: none");
 			return;
 		}
 
-		$event->getPlayer()->sendTip("cached chunk\nowner {$section->getOwnerId()->getPrefix()}:{$section->getOwnerId()->getName()}\ngperm {$section->getGroupPermission()->toString()}\noperm {$section->getOtherPermission()->toString()}\ntotal-load {$this->loader->countCachedSections()}");
+		$event->getPlayer()->sendTip("cached chunk\nowner {$section->getOwnerId()->getPrefix()}:{$section->getOwnerId()->getName()}\ngperm {$section->getGroupPermission()->toString()}\noperm {$section->getOtherPermission()->toString()}\ntotal-load ?");
 	}
 
 	public function onPlayerJoin(PlayerJoinEvent $event){
@@ -176,7 +174,7 @@ class EventListener implements Listener {
 
 	public function onChunkLoad(ChunkLoadEvent $event){
 		$coordinate = new ChunkCoordinate($event->getChunkX(), $event->getChunkZ(), $event->getWorld()->getFolderName());
-		if(!$this->loader->hasCachedSection($coordinate)){
+		if(!$this->loader->getSectionCache()->hasCache($coordinate)){
 			$this->loader->tryAsyncCacheSection([$coordinate]);
 		}
 	}

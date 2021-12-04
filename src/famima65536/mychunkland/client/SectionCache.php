@@ -29,8 +29,17 @@ class SectionCache {
 		}
 	}
 
+	public function hasCache(ChunkCoordinate $coordinate): bool{
+		if(!isset($this->cache[$coordinate->getWorldName()])){
+			return false;
+		}
+
+		return array_key_exists($coordinate->hash(), $this->cache[$coordinate->getWorldName()]);
+
+	}
+
 	public function readCache(ChunkCoordinate $coordinate): ?Section{
-		if($this->cache[$coordinate->getWorldName()]){
+		if(!isset($this->cache[$coordinate->getWorldName()])){
 			return null;
 		}
 

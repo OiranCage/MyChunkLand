@@ -31,7 +31,7 @@ class LandMenuForm implements Form {
 				break;
 
 			case 1:
-				Loader::getInstance()->getFormSession($player)->open(new AddGroupMemberForm($this->section));
+				Loader::getInstance()->getFormSession($player)->open(new AddGroupMemberForm($this->section, $player));
 				break;
 
 			case 2:
