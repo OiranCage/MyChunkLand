@@ -8,7 +8,6 @@ use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\model\ShareGroup;
 use famima65536\mychunkland\system\model\UserId;
 use mysqli;
-use pocketmine\level\Level;
 
 class MySQLSectionRepository implements ISectionRepository {
 
@@ -39,9 +38,9 @@ class MySQLSectionRepository implements ISectionRepository {
 	 * @inheritDoc
 	 */
 	public function save(Section $section): void{
-		$stmt = $this->connection->prepare("INSERT INTO mychunklandtest01.section(x, z, world_name) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE owner_name = ?, owner_prefix = ?, share_group = ?, group_permission = ?, other_permission = ?");
+		$stmt = $this->connection->prepare("INSERT INTO mychunklandtest01.section(x, z, world_name, owner_name, owner_prefix, share_group, group_permission, other_permission) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE owner_name = ?, owner_prefix = ?, share_group = ?, group_permission = ?, other_permission = ?");
 
-		$stmt->bind_param('iissssii', $x, $z, $world_name, $owner_name, $owner_prefix, $share_group, $group_permission, $other_permission);
+		$stmt->bind_param('iissssiisssii', $x, $z, $world_name, $owner_name, $owner_prefix, $share_group, $group_permission, $other_permission, $owner_name, $owner_prefix, $share_group, $group_permission, $other_permission);
 		$x = $section->getCoordinate()->getX();
 		$z = $section->getCoordinate()->getZ();
 		$world_name = $section->getCoordinate()->getWorldName();
