@@ -2,16 +2,16 @@
 
 namespace famima65536\mychunkland\client\form;
 
-use famima65536\mychunkland\client\LanguageManager;
 use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\PlayerUserId;
 use famima65536\mychunkland\system\model\Section;
 use InvalidArgumentException;
 use pocketmine\form\Form;
+use pocketmine\lang\Language;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
-class AddGroupMemberForm implements Form {
+class AddGroupMemberForm extends LanguageSupportForm {
 
 	/** @var string[]  */
 	private array $playerList = [];
@@ -19,7 +19,7 @@ class AddGroupMemberForm implements Form {
 	/**
 	 * @param Section $section
 	 */
-	public function __construct(private Section $section, private Player $player){
+	public function __construct(private Section $section){
 		$this->playerList[] = "-";
 		foreach(Server::getInstance()->getOnlinePlayers() as $player){
 			$this->playerList[] = $player->getName();
@@ -41,7 +41,7 @@ class AddGroupMemberForm implements Form {
 		try{
 			$section = $this->section->shareGroupUpdated($this->section->getShareGroup()->add(new PlayerUserId($addedPlayerName)));
 		}catch(InvalidArgumentException $ex){
-			$player->sendMessage(LanguageManager::getInstance()->getLanguageFor($this->player)->get("form.add-group-member.error.duplicate"));
+			$player->sendMessage($this->getLanguage()->get("form.add-group-member.error.duplicate"));
 			return;
 		}
 
@@ -59,7 +59,7 @@ class AddGroupMemberForm implements Form {
 	}
 
 	public function jsonSerialize(){
-		$language = LanguageManager::getInstance()->getLanguageFor($this->player);
+		$language = $this->getLanguage();
 		return [
 			"type" => "custom_form",
 			"title" => $language->get("form.add-group-member.title"),

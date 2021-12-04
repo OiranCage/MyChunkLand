@@ -7,7 +7,7 @@ use famima65536\mychunkland\system\model\Section;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class MyLandListForm implements Form {
+class MyLandListForm extends LanguageSupportForm {
 
 	/**
 	 * @param Section[] $sections

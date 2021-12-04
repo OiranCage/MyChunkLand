@@ -8,7 +8,7 @@ use famima65536\mychunkland\system\model\Section;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class EditPermissionForm implements Form {
+class EditPermissionForm extends LanguageSupportForm {
 
 	public function __construct(private Section $section){
 	}

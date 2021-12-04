@@ -6,10 +6,9 @@ use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\PlayerUserId;
 use famima65536\mychunkland\system\model\Section;
-use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class CentralForm implements Form {
+class CentralForm extends LanguageSupportForm {
 
 	/**
 	 * @inheritDoc
@@ -62,9 +61,9 @@ class CentralForm implements Form {
 			"title" => "MyChunkLand Central Form",
 			"content" => "Choose action",
 			"buttons" => [
-				["text" => "My Land List"],
-				["text" => "Own Land"],
-				["text" => "Edit/View Here"]
+				["text" => $this->getLanguage()->get("form.central.my-land-list")],
+				["text" => $this->getLanguage()->get("form.central.buy-land")],
+				["text" => $this->getLanguage()->get("form.central.edit-view-here")]
 			]
 		];
 	}

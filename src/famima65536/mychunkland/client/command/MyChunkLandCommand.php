@@ -3,6 +3,7 @@
 namespace famima65536\mychunkland\client\command;
 
 use famima65536\mychunkland\client\form\CentralForm;
+use famima65536\mychunkland\client\LanguageManager;
 use famima65536\mychunkland\client\Loader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -20,7 +21,7 @@ class MyChunkLandCommand extends Command {
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if($sender instanceof Player and count($args) === 0){
 			$this->loader->startFormSession($sender);
-			$this->loader->getFormSession($sender)->open(new CentralForm());
+			$this->loader->getFormSession($sender)->open(new CentralForm(LanguageManager::getInstance()->getLanguageFor($sender)));
 		}
 	}
 

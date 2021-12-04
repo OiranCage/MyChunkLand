@@ -11,7 +11,7 @@ use famima65536\mychunkland\system\model\ShareGroup;
 use pocketmine\form\Form;
 use pocketmine\player\Player;
 
-class OwnLandForm implements Form {
+class OwnLandForm extends LanguageSupportForm {
 
 
 	public function __construct(private ChunkCoordinate $coordinate){

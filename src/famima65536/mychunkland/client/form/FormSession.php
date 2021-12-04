@@ -3,6 +3,7 @@
 namespace famima65536\mychunkland\client\form;
 
 use pocketmine\form\Form;
+use pocketmine\lang\Language;
 use pocketmine\player\Player;
 use SplStack;
 
@@ -11,11 +12,12 @@ class FormSession {
 	/** @var SplStack<Form> $formStack*/
 	private SplStack $formStack;
 
-	public function __construct(private Player $player){
+	public function __construct(private Player $player, private Language $language){
 		$this->formStack = new SplStack();
 	}
 
-	public function open(Form $form){
+	public function open(LanguageSupportForm $form){
+		$form->setLanguage($this->language);
 		$this->formStack->push($form);
 		$this->player->sendForm($form);
 	}

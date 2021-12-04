@@ -5,11 +5,10 @@ namespace famima65536\mychunkland\client\form;
 use famima65536\mychunkland\client\Loader;
 use famima65536\mychunkland\system\model\Section;
 use famima65536\mychunkland\system\model\UserId;
-use pocketmine\form\Form;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 
-class LandMenuForm implements Form {
+class LandMenuForm extends LanguageSupportForm {
 
 	public function __construct(private Section $section){
 	}
@@ -34,7 +33,7 @@ class LandMenuForm implements Form {
 				Loader::getInstance()->getFormSession($player)->open(new AddGroupMemberForm($this->section, $player));
 				break;
 
-			case 2:
+			case 3:
 				Loader::getInstance()->getFormSession($player)->open(new EditPermissionForm($this->section));
 				break;
 
@@ -53,20 +52,20 @@ class LandMenuForm implements Form {
 		$section = $this->section;
 		return [
 			"type" => "form",
-			"title" => "Land Menu",
+			"title" => $this->getLanguage()->get('form.land-menu.title'),
 			"content" => join("\n",[
-				"Land: {$section->getCoordinate()->getX()}.{$section->getCoordinate()->getZ()}@{$section->getCoordinate()->getWorldName()}",
-				"Group Access Permission: {$section->getGroupPermission()->toString()}",
-				"Other Access Permission: {$section->getOtherPermission()->toString()}",
-				"Group Member: ".join(",", array_map(fn(UserId $id) => "{$id->getPrefix()}:{$id->getName()}", $section->getShareGroup()->getUserIds())),
-				"Choose action below"
+				"{$this->getLanguage()->get('terms.land')}: {$section->getCoordinate()->getX()}.{$section->getCoordinate()->getZ()}@{$section->getCoordinate()->getWorldName()}",
+				"{$this->getLanguage()->get('terms.group-access-permission')}: {$section->getGroupPermission()->toString()}",
+				"{$this->getLanguage()->get('terms.other-access-permission')}: {$section->getOtherPermission()->toString()}",
+				"{$this->getLanguage()->get('terms.group-member')}: ".join(",", array_map(fn(UserId $id) => "{$id->getPrefix()}:{$id->getName()}", $section->getShareGroup()->getUserIds())),
+				$this->getLanguage()->get('terms.choose-action')
 			]),
 			"buttons" => [
-				["text" => "Teleport"],
-				["text" => "Add Share Group Member"],
-				["text" => "Remove Share Group Member"],
-				["text" => "Edit Access Permission"],
-				["text" => "Abandon This Land"]
+				["text" => $this->getLanguage()->get('terms.teleport')],
+				["text" => $this->getLanguage()->get('form.add-group-member.title')],
+				["text" => $this->getLanguage()->get('form.remove-group-member.title')],
+				["text" => $this->getLanguage()->get('form.edit-permission.title')],
+				["text" => $this->getLanguage()->get('form.land-menu.abandon')]
 			]
 		];
 	}

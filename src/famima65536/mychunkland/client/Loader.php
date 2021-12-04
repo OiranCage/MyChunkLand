@@ -82,7 +82,7 @@ class Loader extends PluginBase {
 	}
 
 	public function startFormSession(Player $player): void{
-		$this->sessions[$player->getName()] = new FormSession($player);
+		$this->sessions[$player->getName()] = new FormSession($player, LanguageManager::getInstance()->getLanguageFor($player));
 	}
 
 	public function getFormSession(Player $player): ?FormSession{
