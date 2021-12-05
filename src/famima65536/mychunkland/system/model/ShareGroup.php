@@ -50,8 +50,8 @@ class ShareGroup implements \JsonSerializable {
 			throw new InvalidArgumentException("given user id is not in group.");
 		}
 
-		$userIds = array_filter($this->userIds, fn(UserId $id) => $userId->equals($id));
-		return new ShareGroup($userIds);
+		$userIds = array_filter($this->userIds, fn(UserId $id) => !$userId->equals($id));
+		return new ShareGroup(array_values($userIds));
 	}
 
 	public function jsonSerialize(): array{

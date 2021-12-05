@@ -30,4 +30,6 @@ interface ISectionRepository {
 	 */
 	public function findByShared(UserId $userId): array;
 
+	public function delete(ChunkCoordinate $coordinate): void;
+
 }

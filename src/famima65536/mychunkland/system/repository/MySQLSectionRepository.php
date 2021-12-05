@@ -67,7 +67,7 @@ class MySQLSectionRepository implements ISectionRepository {
 		while($stmt->fetch()){
 			$result[] = new Section(new ChunkCoordinate($x, $y, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group, true)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
 		}
-
+		$stmt->close();
 		return $result;
 	}
 
@@ -81,13 +81,23 @@ class MySQLSectionRepository implements ISectionRepository {
 		$owner_name = $userId->getName();
 		$stmt->execute();
 
-		$stmt->bind_result($x, $y, $world_name, $owner_name, $owner_prefix, $group_permission, $other_permission, $share_group);
+		$stmt->bind_result($x, $z, $world_name, $owner_name, $owner_prefix, $group_permission, $other_permission, $share_group);
 
 		$result = [];
 		while($stmt->fetch()){
-			$result[] = new Section(new ChunkCoordinate($x, $y, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group, true)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
+			$result[] = new Section(new ChunkCoordinate($x, $z, $world_name), new UserId($owner_prefix, $owner_name), ShareGroup::deserializeFromJson(json_decode($share_group, true)), AccessPermission::fromBinary($group_permission), AccessPermission::fromBinary($other_permission));
 		}
-
+		$stmt->close();
 		return $result;
+	}
+
+	public function delete(ChunkCoordinate $coordinate): void{
+		$stmt = $this->connection->prepare("DELETE FROM mychunklandtest01.section WHERE x = ? AND z = ? AND world_name = ?");
+		$stmt->bind_param('iis', $x, $z, $world_name);
+		$x = $coordinate->getX();
+		$z = $coordinate->getZ();
+		$world_name = $coordinate->getWorldName();
+		$stmt->execute();
+		$stmt->close();
 	}
 }
