@@ -20,6 +20,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\world\ChunkLoadEvent;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
@@ -95,7 +96,10 @@ class EventListener implements Listener {
 		$this->waitForLoading($coordinate, $event);
 
 		$section = $this->loader->getSectionCache()->readCache($coordinate);
-		if($section === null and !SettingManager::getInstance()->getSettingForWorld($world)->update_block_without_owning){
+		if($section === null){
+			if(SettingManager::getInstance()->getSettingForWorld($world)->update_block_without_owning){
+				return;
+			}
 			$player->sendPopup(LanguageManager::getInstance()->getLanguageFor($player)->get('event.on-block-update.not-owning'));
 			$event->cancel();
 			return;
@@ -126,7 +130,10 @@ class EventListener implements Listener {
 		$this->waitForLoading($coordinate, $event);
 
 		$section = $this->loader->getSectionCache()->readCache($coordinate);
-		if($section === null and !SettingManager::getInstance()->getSettingForWorld($world)->update_block_without_owning){
+		if($section === null){
+			if(SettingManager::getInstance()->getSettingForWorld($world)->update_block_without_owning){
+				return;
+			}
 			$player->sendPopup(LanguageManager::getInstance()->getLanguageFor($player)->get('event.on-view-block-inventory.not-owning'));
 			$event->cancel();
 			return;
