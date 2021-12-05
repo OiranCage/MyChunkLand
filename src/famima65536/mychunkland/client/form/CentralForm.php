@@ -58,8 +58,8 @@ class CentralForm extends LanguageSupportForm {
 	public function jsonSerialize(){
 		return [
 			"type" => "form",
-			"title" => "MyChunkLand Central Form",
-			"content" => "Choose action",
+			"title" => $this->getLanguage()->get('form.central.title'),
+			"content" => $this->getLanguage()->get('terms.choose-action'),
 			"buttons" => [
 				["text" => $this->getLanguage()->get("form.central.my-land-list")],
 				["text" => $this->getLanguage()->get("form.central.buy-land")],

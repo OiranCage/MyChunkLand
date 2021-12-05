@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5981b6203a0d9940e289e0dff5b7a775",
+    "content-hash": "44f09f845c9bb14633c5bc1554ecd8d9",
     "packages": [],
     "packages-dev": [
         {
@@ -430,6 +430,36 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v4.13.2"
             },
             "time": "2021-11-30T19:35:32+00:00"
+        },
+        {
+            "name": "oirancage/miwallet",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/OiranCage/MiWallet.git",
+                "reference": "2300b3b02616a07954caa5e63bf17659509344ac"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/OiranCage/MiWallet/zipball/2300b3b02616a07954caa5e63bf17659509344ac",
+                "reference": "2300b3b02616a07954caa5e63bf17659509344ac",
+                "shasum": ""
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "oiran\\miwallet\\": "src"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "a library for adding economic concepts.",
+            "support": {
+                "source": "https://github.com/OiranCage/MiWallet/tree/1.0.1",
+                "issues": "https://github.com/OiranCage/MiWallet/issues"
+            },
+            "time": "2021-12-04T03:08:18+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -1329,16 +1359,16 @@
         },
         {
             "name": "pocketmine/binaryutils",
-            "version": "0.2.2",
+            "version": "0.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BinaryUtils.git",
-                "reference": "f883e1cf9099ed6a757a10a2f75b3333eeb2cdf9"
+                "reference": "dc94786fc6c30012b1892f548dbb8a8c9c0a8cd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BinaryUtils/zipball/f883e1cf9099ed6a757a10a2f75b3333eeb2cdf9",
-                "reference": "f883e1cf9099ed6a757a10a2f75b3333eeb2cdf9",
+                "url": "https://api.github.com/repos/pmmp/BinaryUtils/zipball/dc94786fc6c30012b1892f548dbb8a8c9c0a8cd9",
+                "reference": "dc94786fc6c30012b1892f548dbb8a8c9c0a8cd9",
                 "shasum": ""
             },
             "require": {
@@ -1347,8 +1377,10 @@
             },
             "require-dev": {
                 "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "0.12.99",
-                "phpstan/phpstan-strict-rules": "^0.12.4"
+                "phpstan/phpstan": "1.2.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpstan/phpstan-strict-rules": "^1.0.0",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "library",
             "autoload": {
@@ -1363,9 +1395,9 @@
             "description": "Classes and methods for conveniently handling binary data",
             "support": {
                 "issues": "https://github.com/pmmp/BinaryUtils/issues",
-                "source": "https://github.com/pmmp/BinaryUtils/tree/0.2.2"
+                "source": "https://github.com/pmmp/BinaryUtils/tree/0.2.3"
             },
-            "time": "2021-10-22T19:54:16+00:00"
+            "time": "2021-12-04T20:56:05+00:00"
         },
         {
             "name": "pocketmine/callback-validator",
@@ -1540,16 +1572,16 @@
         },
         {
             "name": "pocketmine/locale-data",
-            "version": "2.0.21",
+            "version": "2.0.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/Language.git",
-                "reference": "0331388b72690261e1aec0f90c88f405da98a402"
+                "reference": "181eb9d42653296e65d55a1bbba10e0dd76bbd61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/Language/zipball/0331388b72690261e1aec0f90c88f405da98a402",
-                "reference": "0331388b72690261e1aec0f90c88f405da98a402",
+                "url": "https://api.github.com/repos/pmmp/Language/zipball/181eb9d42653296e65d55a1bbba10e0dd76bbd61",
+                "reference": "181eb9d42653296e65d55a1bbba10e0dd76bbd61",
                 "shasum": ""
             },
             "type": "library",
@@ -1557,9 +1589,9 @@
             "description": "Language resources used by PocketMine-MP",
             "support": {
                 "issues": "https://github.com/pmmp/Language/issues",
-                "source": "https://github.com/pmmp/Language/tree/2.0.21"
+                "source": "https://github.com/pmmp/Language/tree/2.0.22"
             },
-            "time": "2021-12-03T20:25:13+00:00"
+            "time": "2021-12-04T22:37:10+00:00"
         },
         {
             "name": "pocketmine/log",

@@ -30,11 +30,19 @@ class LandMenuForm extends LanguageSupportForm {
 				break;
 
 			case 1:
-				Loader::getInstance()->getFormSession($player)->open(new AddGroupMemberForm($this->section, $player));
+				Loader::getInstance()->getFormSession($player)->open(new AddGroupMemberForm($this->section));
+				break;
+
+			case 2:
+				Loader::getInstance()->getFormSession($player)->open(new RemoveGroupMemberForm($this->section, $this->section->getShareGroup()));
 				break;
 
 			case 3:
 				Loader::getInstance()->getFormSession($player)->open(new EditPermissionForm($this->section));
+				break;
+
+			case 4:
+				Loader::getInstance()->getFormSession($player)->open(new AbandonLandConfirmForm($this->section));
 				break;
 
 			default:
@@ -55,9 +63,13 @@ class LandMenuForm extends LanguageSupportForm {
 			"title" => $this->getLanguage()->get('form.land-menu.title'),
 			"content" => join("\n",[
 				"{$this->getLanguage()->get('terms.land')}: {$section->getCoordinate()->getX()}.{$section->getCoordinate()->getZ()}@{$section->getCoordinate()->getWorldName()}",
+				"---------------",
 				"{$this->getLanguage()->get('terms.group-access-permission')}: {$section->getGroupPermission()->toString()}",
 				"{$this->getLanguage()->get('terms.other-access-permission')}: {$section->getOtherPermission()->toString()}",
-				"{$this->getLanguage()->get('terms.group-member')}: ".join(",", array_map(fn(UserId $id) => "{$id->getPrefix()}:{$id->getName()}", $section->getShareGroup()->getUserIds())),
+				"---------------",
+				$this->getLanguage()->get('terms.group-member'),
+				...array_map(fn(UserId $id) => "{$id->getPrefix()}:{$id->getName()}", $section->getShareGroup()->getUserIds()),
+				"---------------",
 				$this->getLanguage()->get('terms.choose-action')
 			]),
 			"buttons" => [
@@ -65,7 +77,7 @@ class LandMenuForm extends LanguageSupportForm {
 				["text" => $this->getLanguage()->get('form.add-group-member.title')],
 				["text" => $this->getLanguage()->get('form.remove-group-member.title')],
 				["text" => $this->getLanguage()->get('form.edit-permission.title')],
-				["text" => $this->getLanguage()->get('form.land-menu.abandon')]
+				["text" => $this->getLanguage()->get('form.abandon.title')]
 			]
 		];
 	}

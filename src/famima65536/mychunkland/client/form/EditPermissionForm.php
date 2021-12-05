@@ -50,16 +50,16 @@ class EditPermissionForm extends LanguageSupportForm {
 		$otherPermission = $this->section->getOtherPermission();
 		return [
 			"type" => "custom_form",
-			"title" => "Edit Permission",
+			"title" => $this->getLanguage()->get('form.edit-permission.title'),
 			"content" => [
-				["type" => "label", "text" => "Group Permission"],
-				["type" => "toggle", "text" => "Read", "default" => $groupPermission->isReadable()],
-				["type" => "toggle", "text" => "Write", "default" => $groupPermission->isWritable()],
-				["type" => "toggle", "text" => "Execute", "default" => $groupPermission->isExecutable()],
-				["type" => "label", "text" => "Other Permission"],
-				["type" => "toggle", "text" => "Read", "default" => $otherPermission->isReadable()],
-				["type" => "toggle", "text" => "Write", "default" => $otherPermission->isWritable()],
-				["type" => "toggle", "text" => "Execute", "default" => $otherPermission->isExecutable()],
+				["type" => "label", "text" => $this->getLanguage()->get('terms.group-access-permission')],
+				["type" => "toggle", "text" => $this->getLanguage()->get('terms.read'), "default" => $groupPermission->isReadable()],
+				["type" => "toggle", "text" => $this->getLanguage()->get('terms.write'), "default" => $groupPermission->isWritable()],
+				["type" => "toggle", "text" => $this->getLanguage()->get('terms.execute'), "default" => $groupPermission->isExecutable()],
+				["type" => "label", "text" => $this->getLanguage()->get('terms.other-access-permission')],
+				["type" => "toggle", "text" => $this->getLanguage()->get('terms.read'), "default" => $otherPermission->isReadable()],
+				["type" => "toggle", "text" => $this->getLanguage()->get('terms.write'), "default" => $otherPermission->isWritable()],
+				["type" => "toggle", "text" => $this->getLanguage()->get('terms.execute'), "default" => $otherPermission->isExecutable()],
 			]
 		];
 	}

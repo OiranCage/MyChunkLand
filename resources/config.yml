@@ -7,9 +7,9 @@ database:
 setting:
   default:
     update-block-without-owning: true
-    protect-y-range:
-#      min: 50
-#      max: 200
+    protect-min-y-range: 0
+    allow-door-open: true
+    land-price: 10000
   worlds:
-#     WorldFolderName:
-#       update-block-without-owning: false
+     WorldFolderName:
+       update-block-without-owning: false

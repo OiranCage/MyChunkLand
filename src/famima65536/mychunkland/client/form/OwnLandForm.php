@@ -3,6 +3,8 @@
 namespace famima65536\mychunkland\client\form;
 
 use famima65536\mychunkland\client\Loader;
+use famima65536\mychunkland\client\SettingManager;
+use famima65536\mychunkland\client\usecase\BuyLand;
 use famima65536\mychunkland\system\model\AccessPermission;
 use famima65536\mychunkland\system\model\ChunkCoordinate;
 use famima65536\mychunkland\system\model\PlayerUserId;
@@ -25,15 +27,7 @@ class OwnLandForm extends LanguageSupportForm {
 		}
 
 		if($data){
-			Loader::getInstance()->loadAndActionOnSection($this->coordinate, function($section) use ($player){
-				if($section !== null){
-					$player->sendMessage("Land has been owned.");
-					return;
-				}
-
-				Loader::getInstance()->asyncSaveSection(new Section($this->coordinate, new PlayerUserId($player->getName()), new ShareGroup([]), new AccessPermission(true, true, false),new AccessPermission(false, false, false)));
-				$player->sendMessage("Successful!");
-			});
+			(new BuyLand($player, $this->coordinate, Loader::getInstance()))->invokes();
 		}
 	}
 
@@ -41,12 +35,13 @@ class OwnLandForm extends LanguageSupportForm {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(){
+		$price = SettingManager::getInstance()->getSettingForWorldByName($this->coordinate->getWorldName())->land_price;
 		return [
 			"type" => "modal",
-			"title" => "Buy this chunk land",
-			"content" => "Do you own this land? cost: xxx",
-			"button1" => "Yes",
-			"button2" => "No"
+			"title" => $this->getLanguage()->get('form.buy-land.title'),
+			"content" => $this->getLanguage()->translateString('form.buy-land.content', [$price]),
+			"button1" => $this->getLanguage()->get('terms.yes'),
+			"button2" => $this->getLanguage()->get('terms.no')
 		];
 	}
 }

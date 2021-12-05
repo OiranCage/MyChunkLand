@@ -5,7 +5,9 @@ namespace famima65536\mychunkland\client;
 use Closure;
 use Exception;
 use famima65536\mychunkland\client\command\MyChunkLandCommand;
+use famima65536\mychunkland\client\command\ShowChunkBoxCommand;
 use famima65536\mychunkland\client\form\FormSession;
+use famima65536\mychunkland\client\task\AsyncSectionDeleteTask;
 use famima65536\mychunkland\client\task\AsyncSectionLoadByOwnerTask;
 use famima65536\mychunkland\client\task\AsyncSectionLoadTask;
 use famima65536\mychunkland\client\task\AsyncSectionSaveTask;
@@ -18,6 +20,9 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use Webmozart\PathUtil\Path;
 
+/**
+ * @method static Loader getInstance()
+ */
 class Loader extends PluginBase {
 
 	use SingletonTrait;
@@ -42,8 +47,17 @@ class Loader extends PluginBase {
 		}
 
 		LanguageManager::setInstance(new LanguageManager(Path::join($this->getFile(), "resources", "lang")));
+
+		$settingInConfig = $this->getConfig()->get('setting');
+		$settingManager = new SettingManager();
+		$settingManager->loadPreset();
+		$settingManager->loadDefault($settingInConfig['default']);
+		$settingManager->loadWorlds($settingInConfig['worlds']);
+		SettingManager::setInstance($settingManager);
+
 		$this->sectionCache = new SectionCache();
 		$this->getServer()->getCommandMap()->register("mychunkland", new MyChunkLandCommand("mychunkland", "MyChunkLand central command","", ["mcl"], $this));
+		$this->getServer()->getCommandMap()->register("mychunkland", new ShowChunkBoxCommand("showchunkbox", "MyChunkLand support command to see chunk box","", ["scb"]));
 	}
 
 	public function onEnable(): void{
@@ -68,6 +82,12 @@ class Loader extends PluginBase {
 		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionSaveTask($section, $config));
 	}
 
+	public function asyncDeleteSection(Section $section){
+		$config = $this->getConfig()->get("database");
+		$this->sectionCache->writeNullCache($section->getCoordinate(), true);
+		$this->getServer()->getAsyncPool()->submitTask(new AsyncSectionDeleteTask($section->getCoordinate(), $config));
+	}
+
 	public function loadAndActionOnSection(ChunkCoordinate $coordinate, Closure $closure): void{
 		$isCached = $this->sectionCache->hasCache($coordinate);
 		if(!$isCached){
@@ -81,6 +101,8 @@ class Loader extends PluginBase {
 		$closure($section);
 	}
 
+
+
 	public function startFormSession(Player $player): void{
 		$this->sessions[$player->getName()] = new FormSession($player, LanguageManager::getInstance()->getLanguageFor($player));
 	}
@@ -92,5 +114,7 @@ class Loader extends PluginBase {
 	public function getSectionCache(): SectionCache{
 		return $this->sectionCache;
 	}
+
+
 
 }

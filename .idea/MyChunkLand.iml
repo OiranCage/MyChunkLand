@@ -66,6 +66,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/ramsey/collection" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ramsey/uuid" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/pocketmine/nbt" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/oirancage/miwallet" />
     </content>
     <content url="file://$MODULE_DIR$/../../data/virions" />
     <orderEntry type="inheritedJdk" />
